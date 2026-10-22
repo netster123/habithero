@@ -1,5 +1,5 @@
 // Bei jeder Änderung an App-Dateien VERSION erhöhen – dann zeigt die App „Neue Version verfügbar“.
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 const CACHE = `habithero-${VERSION}`;
 const ASSETS = [
   './',

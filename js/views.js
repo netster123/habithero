@@ -3,7 +3,7 @@ import { levelInfo, tasksForToday, taskEntry, pointsOnDay } from './progress.js'
 import { greeting, longDate, dayKey, dayLabel, clock, formatNumber, formatEuro } from './time.js';
 import { icon } from './icons.js';
 
-export const APP_VERSION = '0.1.0';
+export const APP_VERSION = '0.1.1';
 
 export function esc(v) {
   return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

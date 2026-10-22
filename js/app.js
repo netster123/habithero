@@ -214,9 +214,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
   }).catch(err => console.warn('Service Worker nicht registriert', err));
 
+  // Beim allerersten Start übernimmt der Service Worker ohne Neuladen
+  const hadController = !!navigator.serviceWorker.controller;
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading) return;
+    if (reloading || !hadController) return;
     reloading = true;
     location.reload();
   });
