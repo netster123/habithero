@@ -1,5 +1,5 @@
 // Bei jeder Änderung an App-Dateien VERSION erhöhen – die neue Version installiert sich dann selbst.
-const VERSION = '0.6.4';
+const VERSION = '0.6.5';
 const CACHE = `habithero-${VERSION}`;
 const ASSETS = [
   './',
@@ -29,8 +29,8 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', event => {
-  // Neue Version sofort aktivieren, statt zu warten, bis alle Fenster geschlossen sind
-  // cache: 'reload' umgeht den Browser-Zwischenspeicher – sonst landen alte Dateien in der neuen Version
+  // Neue Version sofort aktivieren, statt zu warten, bis alle Fenster geschlossen sind.
+  // cache: 'reload' umgeht den Browser-Zwischenspeicher – sonst landen alte Dateien in der neuen Version.
   event.waitUntil(caches.open(CACHE)
     .then(c => c.addAll(ASSETS.map(url => new Request(url, { cache: 'reload' }))))
     .then(() => self.skipWaiting()));
@@ -48,25 +48,31 @@ self.addEventListener('message', event => {
   if (event.data === 'skipWaiting') self.skipWaiting();
 });
 
-// Offline zuerst: App-Dateien kommen aus dem Cache
+// Online: App-Dateien immer frisch vom Server holen (und für offline aufheben).
+// Offline oder nach 4 Sekunden ohne Antwort: die gespeicherte Version nehmen.
+function networkFirst(req) {
+  const key = req.mode === 'navigate' ? 'index.html' : req;
+  const fromNet = fetch(req, { cache: 'no-store' }).then(res => {
+    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(key, copy)); }
+    return res;
+  });
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4000));
+  return Promise.race([fromNet, timeout]).catch(() =>
+    caches.match(key, { ignoreSearch: true }).then(hit => hit || fromNet));
+}
+
+// Große oder unveränderliche Dateien (Symbole, USDA-Datenbank): aus dem Speicher, sonst einmal laden
+function cacheFirst(req) {
+  return caches.match(req, { ignoreSearch: true }).then(hit => hit || fetch(req).then(res => {
+    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+    return res;
+  }));
+}
+
 self.addEventListener('fetch', event => {
   const req = event.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
-  event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then(hit => {
-      if (hit) return hit;
-      return fetch(req).then(res => {
-        // Die große USDA-Datei wird erst bei der ersten Online-Suche geladen und dann offline aufbewahrt
-        if (res.ok && new URL(req.url).pathname.endsWith('/data/usda.json')) {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(req, copy));
-        }
-        if (res.ok && req.mode === 'navigate') {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put('index.html', copy));
-        }
-        return res;
-      }).catch(() => req.mode === 'navigate' ? caches.match('index.html') : Response.error());
-    })
-  );
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== self.location.origin) return;
+  const stable = url.pathname.includes('/icons/') || url.pathname.endsWith('/data/usda.json');
+  event.respondWith(stable ? cacheFirst(req) : networkFirst(req));
 });

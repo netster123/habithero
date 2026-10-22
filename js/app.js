@@ -573,6 +573,8 @@ document.addEventListener('click', async e => {
     render();
   } else if (a === 'dismiss-install') {
     setSetting('installHintDismissed', true);
+  } else if (a === 'force-update') {
+    forceUpdate();
   } else if (a === 'apply-update') {
     applyUpdate();
   }
@@ -609,6 +611,19 @@ document.addEventListener('change', e => {
 
 function applyUpdate() {
   location.reload();
+}
+
+// Notfall-Knopf: Service Worker und App-Dateien verwerfen und alles frisch laden.
+// localStorage (deine Einträge) wird dabei nicht angefasst.
+async function forceUpdate() {
+  toast('App wird neu geladen …');
+  try {
+    const regs = await navigator.serviceWorker?.getRegistrations?.() || [];
+    await Promise.all(regs.map(r => r.unregister()));
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k.startsWith('habithero-')).map(k => caches.delete(k)));
+  } catch (err) { console.warn(err); }
+  location.replace(`${location.pathname}?neu=${Date.now()}#einstellungen`);
 }
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {

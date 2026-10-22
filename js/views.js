@@ -5,7 +5,7 @@ import { icon } from './icons.js';
 import { quitState, shortDuration } from './rauchfrei.js';
 import { installInfo } from './install.js';
 
-export const APP_VERSION = '0.6.4';
+export const APP_VERSION = '0.6.5';
 
 import { esc } from './util.js';
 export { esc };
@@ -219,7 +219,12 @@ export function viewEinstellungen() {
     </div>
     <input type="file" id="restore-file" accept="application/json,.json" hidden>
     <p class="hint" style="padding:0 2px">Deine Daten liegen nur auf diesem iPhone. Nutze HabitHero immer über das Symbol auf dem Home-Bildschirm, denn der Browser speichert getrennt davon.</p>
-    <p class="hint muted" style="padding:0 2px">HabitHero ${APP_VERSION}</p>
+    <h2 class="section-title">App-Version</h2>
+    <div class="list">
+      <div class="list-item"><span class="list-main">HabitHero ${APP_VERSION}</span></div>
+      <button type="button" class="list-item" data-action="force-update">${icon('history')}<span class="list-main">Update erzwingen
+        <div class="sub">Lädt die App komplett neu vom Server. Deine Einträge bleiben erhalten.</div></span></button>
+    </div>
   `;
 }
 

@@ -13,6 +13,8 @@ Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft a
   Neue Versionen aktivieren sich selbst (`skipWaiting` beim Installieren); die App zeigt danach „Neu laden“.
   Beim Installieren lädt der Service Worker alle Dateien mit `cache: 'reload'` – GitHub Pages schickt 10 Minuten
   Browser-Cache mit, ohne das landeten alte Dateien in der neuen Version.
+  Ab 0.6.5 holt der Service Worker App-Dateien online immer frisch (network-first, 4 s Timeout, sonst Cache);
+  Symbole und `data/usda.json` cache-first. Einstellungen → „Update erzwingen“ verwirft SW und Caches (nicht die Daten).
   Kein Warten auf ein Signal vom Nutzer mehr – das ging auf dem iPhone schief, wenn mehrere Updates kurz nacheinander kamen.
 - Ein „Tag“ beginnt um 05:00 (`js/time.js`), weil der Nutzer erst gegen 01:00 schlafen geht.
 - Icons: `python3 tools/make-icons.py`.
