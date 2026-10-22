@@ -604,38 +604,29 @@ document.addEventListener('change', e => {
 });
 
 // --- Service Worker & Updates ------------------------------------------------
-
-let waitingWorker = null;
-
-function showUpdate(worker) {
-  waitingWorker = worker;
-  document.getElementById('update-banner').hidden = false;
-}
+// Neue Versionen installieren sich selbst (sw.js ruft skipWaiting auf). Sobald die neue Version aktiv ist,
+// zeigt die App den Hinweis; ein Tipp lädt neu. Ist die App gerade im Hintergrund, lädt sie gleich neu.
 
 function applyUpdate() {
-  if (waitingWorker) waitingWorker.postMessage('skipWaiting');
-  else location.reload();
+  location.reload();
 }
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register('sw.js').then(reg => {
-    if (reg.waiting && navigator.serviceWorker.controller) showUpdate(reg.waiting);
+    // Ältere App-Versionen haben auf ein Signal gewartet – eine wartende Version direkt freigeben
+    if (reg.waiting) reg.waiting.postMessage('skipWaiting');
     reg.addEventListener('updatefound', () => {
       const w = reg.installing;
-      w?.addEventListener('statechange', () => {
-        if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdate(w);
-      });
+      w?.addEventListener('statechange', () => { if (w.state === 'installed') w.postMessage('skipWaiting'); });
     });
     document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
   }).catch(err => console.warn('Service Worker nicht registriert', err));
 
-  // Beim allerersten Start übernimmt der Service Worker ohne Neuladen
-  const hadController = !!navigator.serviceWorker.controller;
-  let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading || !hadController) return;
-    reloading = true;
-    location.reload();
+    if (!hadController) return; // allererster Start: nichts zu tun
+    if (document.hidden) { location.reload(); return; }
+    document.getElementById('update-banner').hidden = false;
   });
 }
 

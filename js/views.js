@@ -5,7 +5,7 @@ import { icon } from './icons.js';
 import { quitState, shortDuration } from './rauchfrei.js';
 import { installInfo } from './install.js';
 
-export const APP_VERSION = '0.6.2';
+export const APP_VERSION = '0.6.3';
 
 import { esc } from './util.js';
 export { esc };
