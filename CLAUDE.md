@@ -11,6 +11,8 @@ Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft a
 - `sw.js` macht die App offline-fähig. **Bei jeder Änderung an App-Dateien `VERSION` in `sw.js` und
   `APP_VERSION` in `js/views.js` erhöhen** und neue Dateien in `ASSETS` eintragen – sonst sieht das iPhone das Update nicht.
   Neue Versionen aktivieren sich selbst (`skipWaiting` beim Installieren); die App zeigt danach „Neu laden“.
+  Beim Installieren lädt der Service Worker alle Dateien mit `cache: 'reload'` – GitHub Pages schickt 10 Minuten
+  Browser-Cache mit, ohne das landeten alte Dateien in der neuen Version.
   Kein Warten auf ein Signal vom Nutzer mehr – das ging auf dem iPhone schief, wenn mehrere Updates kurz nacheinander kamen.
 - Ein „Tag“ beginnt um 05:00 (`js/time.js`), weil der Nutzer erst gegen 01:00 schlafen geht.
 - Icons: `python3 tools/make-icons.py`.

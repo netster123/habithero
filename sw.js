@@ -1,5 +1,5 @@
 // Bei jeder Änderung an App-Dateien VERSION erhöhen – die neue Version installiert sich dann selbst.
-const VERSION = '0.6.3';
+const VERSION = '0.6.4';
 const CACHE = `habithero-${VERSION}`;
 const ASSETS = [
   './',
@@ -30,7 +30,10 @@ const ASSETS = [
 
 self.addEventListener('install', event => {
   // Neue Version sofort aktivieren, statt zu warten, bis alle Fenster geschlossen sind
-  event.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // cache: 'reload' umgeht den Browser-Zwischenspeicher – sonst landen alte Dateien in der neuen Version
+  event.waitUntil(caches.open(CACHE)
+    .then(c => c.addAll(ASSETS.map(url => new Request(url, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {
