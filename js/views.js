@@ -5,7 +5,7 @@ import { icon } from './icons.js';
 import { quitState, shortDuration } from './rauchfrei.js';
 import { installInfo } from './install.js';
 
-export const APP_VERSION = '0.6.5';
+export const APP_VERSION = '0.6.6';
 
 import { esc } from './util.js';
 export { esc };
@@ -219,6 +219,12 @@ export function viewEinstellungen() {
     </div>
     <input type="file" id="restore-file" accept="application/json,.json" hidden>
     <p class="hint" style="padding:0 2px">Deine Daten liegen nur auf diesem iPhone. Nutze HabitHero immer über das Symbol auf dem Home-Bildschirm, denn der Browser speichert getrennt davon.</p>
+    <h2 class="section-title">Zurücksetzen</h2>
+    <div class="list">
+      <button type="button" class="list-item" data-action="reset-app" style="color:var(--danger)">${icon('trash')}<span class="list-main">App auf Ursprungszustand zurücksetzen
+        <div class="sub">Löscht alle Einträge, Punkte, Rezepte und Einstellungen auf diesem Gerät.</div></span></button>
+    </div>
+
     <h2 class="section-title">App-Version</h2>
     <div class="list">
       <div class="list-item"><span class="list-main">HabitHero ${APP_VERSION}</span></div>

@@ -1,4 +1,4 @@
-import { getSetting, setSetting, onChange, findEntry, addEntry, updateEntry, removeEntry, exportData, importData, markBackup } from './store.js';
+import { resetAll, getSetting, setSetting, onChange, findEntry, addEntry, updateEntry, removeEntry, exportData, importData, markBackup } from './store.js';
 import { tasksForToday, toggleTask, levelInfo, isTaskDone } from './progress.js';
 import { viewSchlaf, viewNightForm, nightDraftFrom, saveNight, durationFor, sleepSeries, goalMinutes } from './schlaf.js';
 import { totalPoints } from './store.js';
@@ -573,6 +573,23 @@ document.addEventListener('click', async e => {
     render();
   } else if (a === 'dismiss-install') {
     setSetting('installHintDismissed', true);
+  } else if (a === 'reset-app') {
+    const first = await confirmDialog({
+      title: 'App zurücksetzen?',
+      text: 'Alle Einträge, Punkte, Level, Rezepte, gespeicherten Zutaten und Einstellungen werden gelöscht. Tipp: Mach vorher unter „Daten sichern“ eine Sicherung.',
+      confirm: 'Weiter', cancel: 'Abbrechen',
+    });
+    if (!first) return;
+    const second = await confirmDialog({
+      title: 'Wirklich alles löschen?',
+      text: 'Das lässt sich nicht rückgängig machen – außer mit einer Sicherung.',
+      confirm: 'Alles löschen', cancel: 'Abbrechen',
+    });
+    if (!second) return;
+    resetAll();
+    sos = null; mealDraft = null; recipeDraft = null; nightDraft = null;
+    location.hash = '#heute';
+    toast('HabitHero ist zurückgesetzt');
   } else if (a === 'force-update') {
     forceUpdate();
   } else if (a === 'apply-update') {

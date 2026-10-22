@@ -1,5 +1,5 @@
 // Bei jeder Änderung an App-Dateien VERSION erhöhen – die neue Version installiert sich dann selbst.
-const VERSION = '0.6.5';
+const VERSION = '0.6.6';
 const CACHE = `habithero-${VERSION}`;
 const ASSETS = [
   './',

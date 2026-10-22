@@ -151,4 +151,11 @@ export function importData(text) {
   commit();
 }
 
+// Alles löschen und mit den Startwerten neu beginnen
+export function resetAll() {
+  try { localStorage.removeItem(KEY); } catch { /* egal */ }
+  state = defaults();
+  commit();
+}
+
 export function markBackup() { setSetting('lastBackup', new Date().toISOString()); }
