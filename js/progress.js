@@ -1,7 +1,8 @@
 // Punkte, Level und die Tagesaufgaben.
-import { entries, findEntry, addEntry, removeEntry } from './store.js';
+import { entries, findEntry, addEntry, removeEntry, getSetting } from './store.js';
 import { dayKey, weekday, minutesOfDay } from './time.js';
 import { TRAINING_DAYS, trainedToday } from './training.js';
+import { nightLoggedToday, toMin, fromMin } from './schlaf.js';
 import { mealsForToday, mealValues, mealPoints, mealEntry, toggleMeal } from './essen.js';
 
 // Level n beginnt bei 75·(n−1)·n Punkten: Level 2 ab 150, Level 10 ab 6.750,
@@ -18,21 +19,27 @@ export function levelInfo(points) {
 }
 
 
-// Tagesplan passend zum Schlafrhythmus 01:00–12:00
-export const TASKS = [
-  { id: 'licht',    time: '12:15', title: 'Raus ans Tageslicht, 10 Min.', points: 20 },
-  { id: 'snack1',   time: '15:00', title: 'Sport-Snack', points: 40 },
-  { id: 'training', time: '19:00', title: 'Training: Liegestütze, Kniebeugen, Klimmzüge', points: 100, days: TRAINING_DAYS },
-  { id: 'snack2',   time: '19:00', title: 'Sport-Snack', points: 40, notDays: TRAINING_DAYS },
-  { id: 'dimmen',   time: '00:00', title: 'Bildschirm dimmen', points: 20 },
-  { id: 'lichtaus', time: '01:00', title: 'Licht aus', points: 30 },
-];
+// Tagesplan: Die Zeiten richten sich nach deinem Schlafrhythmus (Einstellungen → Schlafrhythmus)
+export function taskList() {
+  const wake = toMin(getSetting('sleep.wake') || '12:00');
+  const bed = toMin(getSetting('sleep.bed') || '01:00');
+  return [
+    { id: 'nacht',    time: fromMin(wake + 5),  title: 'Letzte Nacht eintragen', points: 30, link: '#nacht/neu' },
+    { id: 'licht',    time: fromMin(wake + 15), title: 'Raus ans Tageslicht, 10 Min.', points: 20 },
+    { id: 'snack1',   time: fromMin(wake + 180), title: 'Sport-Snack', points: 40 },
+    { id: 'training', time: fromMin(wake + 420), title: 'Training: Liegestütze, Kniebeugen, Klimmzüge', points: 100, days: TRAINING_DAYS, link: '#training' },
+    { id: 'snack2',   time: fromMin(wake + 420), title: 'Sport-Snack', points: 40, notDays: TRAINING_DAYS },
+    { id: 'kaffee',   time: fromMin(bed - 420), title: 'Letzter Kaffee für heute', points: 20, evening: true },
+    { id: 'dimmen',   time: fromMin(bed - 60),  title: 'Bildschirm dimmen', points: 20, evening: true },
+    { id: 'lichtaus', time: fromMin(bed),       title: 'Licht aus', points: 30, evening: true },
+  ];
+}
 
 // Feste Aufgaben plus die Mahlzeiten aus deinem Plan im Bereich Essen
 export function tasksForToday(now = new Date()) {
   const wd = weekday(now);
   const meals = mealsForToday().map(m => ({ id: `meal:${m.id}`, time: m.time, title: m.name, points: mealPoints(mealValues(m).kcal), meal: m }));
-  return [...TASKS.filter(t => (!t.days || t.days.includes(wd)) && (!t.notDays || !t.notDays.includes(wd))), ...meals]
+  return [...taskList().filter(t => (!t.days || t.days.includes(wd)) && (!t.notDays || !t.notDays.includes(wd))), ...meals]
     .sort((a, b) => minutesOfDay(a.time) - minutesOfDay(b.time));
 }
 
@@ -40,9 +47,10 @@ export function taskEntry(taskId, day = dayKey()) {
   return findEntry(e => e.type === 'aufgabe' && e.data.task === taskId && e.data.day === day);
 }
 
-// Die Trainings-Aufgabe gilt als erledigt, sobald im Bereich Training ein Training abgeschlossen wurde.
+// Training und „Letzte Nacht“ gelten als erledigt, sobald sie im jeweiligen Bereich eingetragen sind.
 export function isTaskDone(task) {
   if (task.meal) return !!mealEntry(task.meal.id);
+  if (task.id === 'nacht') return nightLoggedToday();
   return task.id === 'training' ? trainedToday() : !!taskEntry(task.id);
 }
 

@@ -1,5 +1,6 @@
 import { getSetting, setSetting, onChange, findEntry, addEntry, updateEntry, removeEntry, exportData, importData, markBackup } from './store.js';
-import { tasksForToday, toggleTask, levelInfo } from './progress.js';
+import { tasksForToday, toggleTask, levelInfo, isTaskDone } from './progress.js';
+import { viewSchlaf, viewNightForm, nightDraftFrom, saveNight, durationFor } from './schlaf.js';
 import { totalPoints } from './store.js';
 import { dayKey } from './time.js';
 import { viewHeute, viewSoon, viewEinstellungen, viewVerlauf, tabbar, esc } from './views.js';
@@ -51,7 +52,7 @@ darkQuery.addEventListener('change', () => { applyTheme(); render(); });
 
 // --- Routing & Rendern -----------------------------------------------------
 
-const ROUTES = ['heute', 'rauchfrei', 'sos', 'training', 'essen', 'mahlzeit', 'rezept', 'rezept-bearbeiten', 'schlaf', 'einstellungen', 'verlauf'];
+const ROUTES = ['heute', 'rauchfrei', 'sos', 'training', 'essen', 'mahlzeit', 'rezept', 'rezept-bearbeiten', 'schlaf', 'nacht', 'einstellungen', 'verlauf'];
 
 function route() {
   const id = (location.hash || '#heute').slice(1).split('/')[0];
@@ -65,6 +66,7 @@ let essenTab = 'plan';
 let recFilter = { cuisine: 'alle', main: null };
 let mealDraft = null;
 let recipeDraft = null;
+let nightDraft = null;
 
 let rendering = false;
 function render() {
@@ -88,13 +90,15 @@ function renderNow() {
     case 'mahlzeit': $view.innerHTML = viewMealForm(mealDraft); break;
     case 'rezept': $view.innerHTML = viewRecipe(routeParam()); break;
     case 'rezept-bearbeiten': $view.innerHTML = viewRecipeForm(recipeDraft); break;
+    case 'schlaf': $view.innerHTML = viewSchlaf(tasksForToday().filter(t => t.evening), isTaskDone); break;
+    case 'nacht': $view.innerHTML = viewNightForm(nightDraft); break;
     case 'sos': $view.innerHTML = viewSos(sos); syncSos(); break;
     case 'einstellungen': $view.innerHTML = viewEinstellungen(); break;
     case 'verlauf': $view.innerHTML = viewVerlauf(verlaufFilter); break;
     default: $view.innerHTML = viewSoon(r);
   }
   const tab = ['einstellungen', 'verlauf'].includes(r) ? 'heute' : r === 'sos' ? 'rauchfrei'
-    : ['mahlzeit', 'rezept', 'rezept-bearbeiten'].includes(r) ? 'essen' : r;
+    : ['mahlzeit', 'rezept', 'rezept-bearbeiten'].includes(r) ? 'essen' : r === 'nacht' ? 'schlaf' : r;
   $tabbar.innerHTML = tabbar(tab);
   window.scrollTo(0, scroll);
 }
@@ -104,6 +108,7 @@ let lastRoute = route();
 function prepareRoute() {
   const r = route();
   if (r === 'mahlzeit' && (!mealDraft || location.hash !== lastHash)) mealDraft = mealDraftFrom(routeParam());
+  if (r === 'nacht' && (!nightDraft || location.hash !== lastHash)) nightDraft = nightDraftFrom(routeParam());
   if (r === 'rezept-bearbeiten' && (!recipeDraft || location.hash !== lastHash)) {
     const p = routeParam();
     recipeDraft = p.startsWith('kopie:') ? recipeDraftFrom('neu', p.slice(6)) : recipeDraftFrom(p);
@@ -114,6 +119,7 @@ window.addEventListener('hashchange', () => {
   if (lastRoute === 'sos' && r !== 'sos') sos = null;
   if (r !== 'mahlzeit') mealDraft = null;
   if (r !== 'rezept-bearbeiten') recipeDraft = null;
+  if (r !== 'nacht') nightDraft = null;
   prepareRoute();
   render();
   if (location.hash !== lastHash) window.scrollTo(0, 0);
@@ -304,6 +310,10 @@ document.addEventListener('input', e => {
   const el = e.target;
   if (el.id === 'ing-query') {
     document.getElementById('ing-results').innerHTML = el.value.trim() ? ingredientResultsHtml(searchLocal(el.value), el.value) : '<p class="hint">Tippe den Namen einer Zutat ein.</p>';
+  } else if (el.dataset.nd && nightDraft) {
+    nightDraft[el.dataset.nd] = el.value;
+    const out = document.getElementById('nd-duration');
+    if (out) out.textContent = durationFor(nightDraft);
   } else if (el.dataset.md && mealDraft) {
     mealDraft[el.dataset.md] = el.value;
   } else if (el.dataset.rd && recipeDraft) {
@@ -440,6 +450,19 @@ document.addEventListener('click', async e => {
     const to = Number(el.dataset.stage);
     const ok = await confirmDialog({ title: `${ex.name}: Stufe ${to + 1}?`, text: `Ab jetzt trainierst du „${ex.stages[to].name}“. Dafür gibt es keine Punkte – die gibt es fürs Aufsteigen.`, confirm: 'Stufe wählen', cancel: 'Abbrechen', danger: false });
     if (ok) setStage(ex.id, to);
+  } else if (a === 'nd-wakeups') {
+    nightDraft.wakeups = Math.max(0, Math.min(20, nightDraft.wakeups + Number(el.dataset.delta)));
+    render();
+  } else if (a === 'nd-quality') {
+    nightDraft.quality = el.dataset.quality;
+    render();
+  } else if (a === 'nd-save') {
+    try {
+      const res = saveNight(nightDraft);
+      toast(res.regular ? 'Im Rhythmus geschlafen · +30 Punkte' : 'Nacht eingetragen · +10 Punkte');
+      nightDraft = null;
+      location.hash = '#schlaf';
+    } catch (err) { toast(err.message); }
   } else if (a === 'essen-tab') {
     essenTab = el.dataset.tab;
     render();
@@ -546,7 +569,7 @@ document.addEventListener('change', e => {
   const el = e.target;
   if (el.dataset.md === 'recipeId' && mealDraft) { mealDraft.recipeId = el.value || null; render(); return; }
   if ((el.dataset.rdGrams || el.dataset.rd === 'portions') && recipeDraft) { render(); return; }
-  if (el.dataset.md || el.dataset.rd) return;
+  if (el.dataset.md || el.dataset.rd || el.dataset.nd) return;
   if (el.id === 'restore-file' && el.files[0]) { restore(el.files[0]); el.value = ''; return; }
   if (el.dataset.plan) {
     const plans = { ...(getSetting('plans') || {}) };

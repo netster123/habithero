@@ -44,4 +44,7 @@ Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft a
   und `data/usda.json` (alle USDA-SR-Legacy-Lebensmittel) aus `tools/build-foods.py` + `tools/foods-de.tsv`.
   Fehlende Zutaten: Suchbegriff wird über MyMemory ins Englische übersetzt und in `data/usda.json` gesucht,
   der Treffer landet in `customFoods`. Kalorienziel steigt von 2.200 alle 2 Wochen um 200 bis 2.700 (rauchfrei: 2.500).
-- Als Nächstes: Schlaf.
+- 0.6.0: Schlaf – Nächte eintragen (`js/schlaf.js`) mit Aufwachen, Qualität, Notiz; Ø Schlaf, Ø wach,
+  „Im Rhythmus“ (±30 Min.), Wochenbalken der Aufstehzeit, Abendaufgaben. Alle Aufgabenzeiten auf „Heute“
+  richten sich nach dem Schlafziel (`taskList()` in `js/progress.js`). Nacht im Rhythmus +30, sonst +10.
+- Alle fünf Bereiche sind gebaut. Offene Ideen: Erinnerungen über iOS-Kurzbefehle, Quellen am Original prüfen.

@@ -5,7 +5,7 @@ import { icon } from './icons.js';
 import { quitState, shortDuration } from './rauchfrei.js';
 import { installInfo } from './install.js';
 
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.6.0';
 
 import { esc } from './util.js';
 export { esc };
@@ -78,10 +78,10 @@ export function viewHeute() {
 
   const taskRows = tasks.map(t => {
     const done = isTaskDone(t);
-    if (t.id === 'training') {
-      return `<a class="list-item ${done ? 'task-done' : ''}" href="#training">
+    if (t.link) {
+      return `<a class="list-item ${done ? 'task-done' : ''}" href="${t.link}">
       <span class="check">${icon(done ? 'check' : 'circle', 'check')}</span>
-      <span class="list-main"><span class="list-title">${esc(t.title)}</span><div class="sub">${t.time} Uhr · ${done ? 'erledigt' : 'zum Training'}</div></span>
+      <span class="list-main"><span class="list-title">${esc(t.title)}</span><div class="sub">${t.time} Uhr · ${done ? 'erledigt' : 'öffnen'}</div></span>
       <span class="list-points">+${t.points}</span></a>`;
     }
     return `<button type="button" class="list-item ${done ? 'task-done' : ''}" data-action="toggle-task" data-task="${t.id}" aria-pressed="${done}">
@@ -136,7 +136,6 @@ export function viewHeute() {
 // --- Platzhalter für die noch kommenden Bereiche -------------------------
 
 const COMING = {
-  schlaf: { icon: 'moon', title: 'Schlafrhythmus', items: ['Schlafens- und Aufstehzeiten eintragen', 'Nächtliches Aufwachen zählen', 'Regelmäßigkeit pro Woche'] },
 };
 
 export function viewSoon(id) {

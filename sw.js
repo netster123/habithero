@@ -1,5 +1,5 @@
 // Bei jeder Änderung an App-Dateien VERSION erhöhen – dann zeigt die App „Neue Version verfügbar“.
-const VERSION = '0.5.0';
+const VERSION = '0.6.0';
 const CACHE = `habithero-${VERSION}`;
 const ASSETS = [
   './',
@@ -20,6 +20,7 @@ const ASSETS = [
   'js/foods.js',
   'js/recipes.js',
   'js/essen.js',
+  'js/schlaf.js',
   'data/foods-de.json',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
