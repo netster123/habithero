@@ -35,4 +35,7 @@ Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft a
   Ausrutscher setzen nur die kurzfristigen Meilensteine zurück; langfristige zählen ab dem Rauchstopp-Tag.
 - 0.3.0: Passt auf alle gängigen Handys (320–430 px Breite, Querformat, große Schrift) und hilft beim
   Installieren auf iPhone und Android (`js/install.js`). Layout-Test lokal: `.audit.js` (nicht im Repo).
-- Als Nächstes: Training, dann Essen (Rezepte, Nährwerte, Tageswert 1–10), dann Schlaf.
+- 0.4.0: Training – Liegestütze, Kniebeugen, Klimmzüge mit Stufen-Leitern (`js/training.js`), Sätze mit
+  Stepper speichern, Satzpause-Timer (60–180 s), Aufsteigen (+100) wenn alle Sätze das Ziel erreichen,
+  Training abschließen (+100, einmal pro Tag), Sätze pro Woche vs. Ziel 10. Stufe = letzter `stufe`-Eintrag.
+- Als Nächstes: Essen (Rezepte, Nährwerte, Tageswert 1–10), dann Schlaf.

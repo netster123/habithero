@@ -20,6 +20,8 @@ function defaults() {
       savingsGoal: { name: '', amount: 0 },
       awarded: [],              // bereits vergebene Rauchfrei-Meilensteine
       installHintDismissed: false,
+      restSeconds: 120,
+      trainingDraft: null,
       lastBackup: null,
     },
     // Jeder Eintrag: { id, type, ts, label, points, data }

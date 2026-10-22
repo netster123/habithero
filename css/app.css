@@ -332,3 +332,32 @@ textarea.input { min-height: 0; resize: vertical; line-height: 1.4; font-size: 1
   .breath-core { width: 90px; height: 90px; }
   .overlay { align-items: center; }
 }
+
+/* Training */
+.sets { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 10px; }
+.set { min-width: 56px; padding: 6px 10px; border-radius: 10px; text-align: center; font-weight: 600; font-size: 15px; }
+.set-open { border: 1px dashed var(--border-strong); color: var(--text-3); font-weight: 400; font-size: 13px; }
+.set-hit { background: var(--accent-bg); color: var(--accent-text); }
+.set-done { background: var(--surface-2); color: var(--text); }
+.logger { display: grid; grid-template-columns: 44px minmax(56px, 1fr) 44px auto; gap: 6px; align-items: center; }
+.stepper { height: 44px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface); font-size: 22px; line-height: 1; }
+.stepper:active { background: var(--surface-2); }
+.rep-input { text-align: center; font-size: 18px; font-weight: 600; padding: 8px 4px; }
+.levelup { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--level-bg); color: var(--level-text); font-size: 14px; }
+.ladder { margin-top: 10px; }
+.ladder summary { color: var(--accent-strong); font-weight: 600; font-size: 14px; cursor: pointer; padding: 4px 0; }
+.ladder ol { margin: 6px 0 0; padding-left: 20px; font-size: 14px; }
+.ladder li { padding: 6px 0; border-top: 1px solid var(--border); }
+.ladder li:first-child { border-top: 0; }
+.ladder li { display: list-item; }
+.ladder li > span:first-child { display: inline; }
+.ladder li .link, .ladder li .sub { float: right; margin-left: 8px; padding: 0; }
+.ladder li.past { color: var(--text-3); }
+.ladder li.current { font-weight: 600; }
+.rest { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: calc(env(safe-area-inset-top) + 8px); z-index: 5; background: var(--level-bg); border-color: transparent; color: var(--level-text); }
+.rest .card-label { color: inherit; }
+.rest .card-value { font-variant-numeric: tabular-nums; font-size: 28px; }
+@media (max-width: 359px) {
+  .logger { grid-template-columns: 40px minmax(48px, 1fr) 40px; }
+  .logger .btn { grid-column: 1 / -1; }
+}

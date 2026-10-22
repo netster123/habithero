@@ -6,6 +6,7 @@ import { viewHeute, viewSoon, viewEinstellungen, viewVerlauf, tabbar, esc } from
 import { viewRauchfrei, viewSos, sheetLogCig, sheetQuitDate, awardMilestones, quitState, TRIGGERS, SOS_SECONDS } from './rauchfrei.js';
 import { bindCharts } from './chart.js';
 import { initInstall, promptInstall } from './install.js';
+import { viewTraining, logSet, undoSet, skipRest, setStage, finishTraining, draft, exerciseById, currentStage } from './training.js';
 
 const $view = document.getElementById('view');
 const $tabbar = document.getElementById('tabbar');
@@ -66,6 +67,7 @@ function renderNow() {
   switch (r) {
     case 'heute': $view.innerHTML = viewHeute(); break;
     case 'rauchfrei': $view.innerHTML = viewRauchfrei(sosRange); break;
+    case 'training': $view.innerHTML = viewTraining(); break;
     case 'sos': $view.innerHTML = viewSos(sos); syncSos(); break;
     case 'einstellungen': $view.innerHTML = viewEinstellungen(); break;
     case 'verlauf': $view.innerHTML = viewVerlauf(verlaufFilter); break;
@@ -148,6 +150,23 @@ function syncSos() {
   }
 }
 setInterval(() => { if (route() === 'sos') syncSos(); }, 250);
+
+// Satzpause im Training herunterzählen
+let restWasRunning = false;
+setInterval(() => {
+  const d = draft();
+  const running = !!(d?.restUntil && d.restUntil > Date.now());
+  const el = document.getElementById('rest-timer');
+  if (running && el) {
+    const left = Math.ceil((d.restUntil - Date.now()) / 1000);
+    el.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+  }
+  if (restWasRunning && !running && d?.restUntil) { // nicht nach „Überspringen“ oder Abschließen
+    navigator.vibrate?.([200, 100, 200]);
+    if (route() === 'training') { toast('Pause vorbei – nächster Satz'); render(); }
+  }
+  restWasRunning = running;
+}, 500);
 
 function finishSos(outcome) {
   if (!sos) return;
@@ -272,7 +291,32 @@ document.addEventListener('click', async e => {
   } else if (a === 'clear-goal') {
     setSetting('savingsGoal', { name: '', amount: 0 });
   } else if (a === 'set') {
-    setSetting(el.dataset.path, el.dataset.value);
+    setSetting(el.dataset.path, el.dataset.kind === 'number' ? Number(el.dataset.value) : el.dataset.value);
+  } else if (a === 'rep-step') {
+    const input = document.getElementById(`reps-${el.dataset.ex}`);
+    input.value = Math.max(0, (Number(input.value) || 0) + Number(el.dataset.delta));
+  } else if (a === 'log-set') {
+    const v = Math.round(Number(document.getElementById(`reps-${el.dataset.ex}`).value));
+    if (!(v > 0)) { toast('Bitte eine Zahl größer als 0 eingeben'); return; }
+    logSet(el.dataset.ex, v);
+    toast('Satz gespeichert – Pause läuft');
+  } else if (a === 'undo-set') {
+    undoSet(el.dataset.ex);
+  } else if (a === 'skip-rest') {
+    skipRest();
+  } else if (a === 'stage-up') {
+    const ex = exerciseById(el.dataset.ex);
+    const to = currentStage(ex.id) + 1;
+    setStage(ex.id, to, { levelUp: true });
+    toast(`Stufe ${to + 1}: ${ex.stages[to].name} · +100 Punkte`);
+  } else if (a === 'choose-stage') {
+    const ex = exerciseById(el.dataset.ex);
+    const to = Number(el.dataset.stage);
+    const ok = await confirmDialog({ title: `${ex.name}: Stufe ${to + 1}?`, text: `Ab jetzt trainierst du „${ex.stages[to].name}“. Dafür gibt es keine Punkte – die gibt es fürs Aufsteigen.`, confirm: 'Stufe wählen', cancel: 'Abbrechen', danger: false });
+    if (ok) setStage(ex.id, to);
+  } else if (a === 'finish-training') {
+    const r = finishTraining();
+    toast(r === 'ok' ? 'Training abgeschlossen · +100 Punkte' : r === 'extra' ? 'Zusatztraining gespeichert' : 'Speichere zuerst mindestens einen Satz');
   } else if (a === 'filter') {
     verlaufFilter = el.dataset.filter;
     render();

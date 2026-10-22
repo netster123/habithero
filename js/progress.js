@@ -1,6 +1,7 @@
 // Punkte, Level und die Tagesaufgaben.
 import { entries, findEntry, addEntry, removeEntry } from './store.js';
 import { dayKey, weekday, minutesOfDay } from './time.js';
+import { TRAINING_DAYS, trainedToday } from './training.js';
 
 // Level n beginnt bei 75·(n−1)·n Punkten: Level 2 ab 150, Level 10 ab 6.750,
 // Level 20 ab 28.500. Bei einem vollen Tag (~350 Punkte) dauert Level 20 etwa 10–12 Wochen,
@@ -15,7 +16,6 @@ export function levelInfo(points) {
   return { level, points, start, next, into: points - start, span: next - start, pct: (points - start) / (next - start) };
 }
 
-const TRAINING_DAYS = [1, 3, 5]; // Mo, Mi, Fr
 
 // Tagesplan passend zum Schlafrhythmus 01:00–12:00
 export const TASKS = [
@@ -40,6 +40,11 @@ export function tasksForToday(now = new Date()) {
 
 export function taskEntry(taskId, day = dayKey()) {
   return findEntry(e => e.type === 'aufgabe' && e.data.task === taskId && e.data.day === day);
+}
+
+// Die Trainings-Aufgabe gilt als erledigt, sobald im Bereich Training ein Training abgeschlossen wurde.
+export function isTaskDone(task) {
+  return task.id === 'training' ? trainedToday() : !!taskEntry(task.id);
 }
 
 export function toggleTask(task) {
