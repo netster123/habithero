@@ -5,7 +5,7 @@ import { icon } from './icons.js';
 import { quitState, shortDuration } from './rauchfrei.js';
 import { installInfo } from './install.js';
 
-export const APP_VERSION = '0.4.0';
+export const APP_VERSION = '0.5.0';
 
 import { esc } from './util.js';
 export { esc };
@@ -136,7 +136,6 @@ export function viewHeute() {
 // --- Platzhalter für die noch kommenden Bereiche -------------------------
 
 const COMING = {
-  essen: { icon: 'food', title: 'Essen', items: ['Eigene Mahlzeiten eingeben und abhaken', 'Rezepte mit automatischer Kalorienberechnung', 'Vitamine, Mineralstoffe und Spurenelemente als Balken', 'Tageswert 1 bis 10: Wie gesund hast du gegessen?'] },
   schlaf: { icon: 'moon', title: 'Schlafrhythmus', items: ['Schlafens- und Aufstehzeiten eintragen', 'Nächtliches Aufwachen zählen', 'Regelmäßigkeit pro Woche'] },
 };
 

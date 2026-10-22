@@ -24,6 +24,10 @@
   --level-bg: #EEEDFE;
   --level-text: #3C3489;
 
+  --warn: #BA7517;
+  --fish-bg: #E6F1FB;
+  --fish-text: #0C447C;
+
   --radius: 10px;
   --radius-lg: 16px;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
@@ -55,6 +59,10 @@
 
   --level-bg: #26215C;
   --level-text: #CECBF6;
+
+  --warn: #EF9F27;
+  --fish-bg: #0C447C;
+  --fish-text: #B5D4F4;
   color-scheme: dark;
 }
 
@@ -360,4 +368,47 @@ textarea.input { min-height: 0; resize: vertical; line-height: 1.4; font-size: 1
 @media (max-width: 359px) {
   .logger { grid-template-columns: 40px minmax(48px, 1fr) 40px; }
   .logger .btn { grid-column: 1 / -1; }
+}
+
+/* Essen */
+.form-stack { display: flex; flex-direction: column; gap: 12px; }
+select.input { appearance: none; -webkit-appearance: none; background-image: none; }
+.scale { display: flex; gap: 3px; margin: 10px 0 4px; }
+.scale span { flex: 1; height: 10px; border-radius: 3px; background: var(--surface-2); }
+.scale span.on { background: var(--accent); }
+.score-details { margin-top: 10px; }
+.score-details summary { color: var(--accent-strong); font-weight: 600; font-size: 14px; cursor: pointer; }
+.sources { margin: 8px 0 0; padding-left: 18px; font-size: 12px; color: var(--text-3); }
+.sources li { margin: 3px 0; }
+.check-btn { width: 40px; height: 40px; margin: -8px -6px -8px -8px; border: 0; background: none; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--border-strong); }
+.task-done .check-btn { color: var(--accent); }
+.kcal-box { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; padding: 12px 14px; border-radius: 14px; background: var(--accent-bg); color: var(--accent-text); font-size: 13px; }
+.kcal-box strong { font-size: 17px; }
+.chip.chip-bad[aria-pressed="true"] { background: var(--danger-bg); color: var(--danger-text); }
+.tag { border-radius: 8px; padding: 3px 8px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.tag-rind { background: var(--sos-bg); color: var(--sos-text); }
+.tag-fisch { background: var(--fish-bg); color: var(--fish-text); }
+.tag-veg { background: var(--accent-bg); color: var(--accent-text); }
+.ing-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; font-size: 15px; }
+.ing-list .row-between { border-top: 1px solid var(--border); padding-top: 6px; }
+.ing-list .row-between:first-child { border-top: 0; padding-top: 0; }
+.steps { margin: 8px 0 0; padding-left: 22px; font-size: 15px; }
+.steps li { margin: 6px 0; }
+.ing-row .grams { width: 76px; min-height: 38px; text-align: right; padding: 6px 8px; }
+.search-sheet { max-height: calc(100vh - 40px); }
+.search-sheet .list { max-height: 50vh; overflow-y: auto; }
+
+/* Balkendiagramme für Nährwerte */
+.hbars { display: flex; flex-direction: column; gap: 7px; margin-top: 8px; }
+.hbar { display: grid; grid-template-columns: minmax(78px, 30%) 1fr auto; gap: 8px; align-items: center; font-size: 13px; }
+.hbar-label { overflow-wrap: anywhere; }
+.hbar-track { position: relative; height: 10px; background: var(--surface-2); border-radius: 0 4px 4px 0; }
+.hbar-track i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 0 4px 4px 0; }
+.hbar-track b { position: absolute; left: 66.67%; top: -3px; bottom: -3px; border-left: 1px dashed var(--text-2); }
+.hbar-value { color: var(--text-2); font-size: 12px; white-space: nowrap; text-align: right; min-width: 92px; }
+.hbar-missing .hbar-value { color: var(--text-3); font-style: italic; }
+@media (max-width: 374px) {
+  .hbar { grid-template-columns: 1fr auto; row-gap: 3px; }
+  .hbar-track { grid-column: 1 / -1; grid-row: 2; }
+  .hbar-value { min-width: 0; }
 }

@@ -1,0 +1,198 @@
+# Deutsche Grundliste: Name<TAB>Gruppe<TAB>exakte USDA-SR-Legacy-Beschreibung<TAB>Portion (Name=Gramm, optional)
+# Getreide: wo möglich unangereicherte Varianten (in den USA werden Reis, Mehl und Nudeln mit Vitaminen angereichert).
+# Gruppen: gemuese obst vollkorn getreide huelsen nuesse fisch rind milch ei fett gewuerz suess getraenk sonstiges
+Rote Linsen, roh	huelsen	Lentils, pink or red, raw
+Linsen, braun, roh	huelsen	Lentils, raw
+Linsen, gekocht	huelsen	Lentils, mature seeds, cooked, boiled, without salt
+Kichererbsen, getrocknet	huelsen	Chickpeas (garbanzo beans, bengal gram), mature seeds, raw
+Kichererbsen, Dose	huelsen	Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained, rinsed in tap water	Dose=240
+Weiße Bohnen, Dose	huelsen	Beans, white, mature seeds, canned	Dose=240
+Kidneybohnen, Dose	huelsen	Beans, kidney, red, mature seeds, canned, drained solids	Dose=240
+Schwarze Bohnen, gekocht	huelsen	Beans, black, mature seeds, cooked, boiled, without salt
+Erbsen, tiefgekühlt	gemuese	Peas, green, frozen, unprepared
+Edamame	huelsen	Edamame, frozen, unprepared
+Tofu	huelsen	Tofu, raw, firm, prepared with calcium sulfate
+Hummus	huelsen	Hummus, commercial	EL=15
+Basmatireis, roh	getreide	Rice, white, long-grain, regular, raw, unenriched
+Reis, weiß, gekocht	getreide	Rice, white, long-grain, regular, unenriched, cooked without salt
+Vollkornreis, roh	vollkorn	Rice, brown, long-grain, raw
+Vollkornreis, gekocht	vollkorn	Rice, brown, long-grain, cooked
+Haferflocken	vollkorn	Oats	EL=10
+Bulgur, roh	vollkorn	Bulgur, dry
+Bulgur, gekocht	vollkorn	Bulgur, cooked
+Couscous, roh	getreide	Couscous, dry
+Quinoa, roh	vollkorn	Quinoa, uncooked
+Nudeln, roh	getreide	Pasta, dry, unenriched
+Vollkornnudeln, roh	vollkorn	Pasta, whole-wheat, dry
+Vollkornbrot	vollkorn	Bread, whole-wheat, commercially prepared	Scheibe=45
+Weißbrot, Toast	getreide	Bread, white, commercially prepared (includes soft bread crumbs)	Scheibe=30
+Ciabatta, Weißbrot	getreide	Bread, french or vienna (includes sourdough)	Scheibe=40
+Fladenbrot, Pita	getreide	Bread, pita, white, unenriched	Stück=60
+Vollkorn-Pita	vollkorn	Bread, pita, whole-wheat	Stück=64
+Roggenbrot	vollkorn	Bread, rye	Scheibe=40
+Chapati, Tortilla	getreide	Tortillas, ready-to-bake or -fry, flour, refrigerated	Stück=45
+Weizenmehl	getreide	Wheat flour, white, all-purpose, unenriched	EL=8
+Vollkornmehl	vollkorn	Wheat flour, whole-grain	EL=8
+Kartoffeln	gemuese	Potatoes, flesh and skin, raw	Stück=150
+Süßkartoffel	gemuese	Sweet potato, raw, unprepared	Stück=200
+Zwiebel	gemuese	Onions, raw	Stück=110
+Rote Zwiebel	gemuese	Onions, raw	Stück=110
+Frühlingszwiebel	gemuese	Onions, spring or scallions (includes tops and bulb), raw	Stück=15
+Knoblauch	gewuerz	Garlic, raw	Zehe=3
+Ingwer	gewuerz	Ginger root, raw	TL=2
+Tomaten	gemuese	Tomatoes, red, ripe, raw, year round average	Stück=120
+Kirschtomaten	gemuese	Tomatoes, red, ripe, raw, year round average	Stück=17
+Gehackte Tomaten, Dose	gemuese	Tomatoes, red, ripe, canned, packed in tomato juice	Dose=400
+Tomatenmark	gemuese	Tomato products, canned, paste, without salt added	EL=16
+Paprika, rot	gemuese	Peppers, sweet, red, raw	Stück=150
+Paprika, grün	gemuese	Peppers, sweet, green, raw	Stück=150
+Gurke	gemuese	Cucumber, with peel, raw	Stück=300
+Karotte	gemuese	Carrots, raw	Stück=70
+Zucchini	gemuese	Squash, summer, zucchini, includes skin, raw	Stück=200
+Aubergine	gemuese	Eggplant, raw	Stück=300
+Brokkoli	gemuese	Broccoli, raw
+Blumenkohl	gemuese	Cauliflower, raw
+Spinat	gemuese	Spinach, raw
+Spinat, tiefgekühlt	gemuese	Spinach, frozen, chopped or leaf, unprepared
+Rucola	gemuese	Arugula, raw	Handvoll=20
+Kopfsalat	gemuese	Lettuce, green leaf, raw
+Eisbergsalat	gemuese	Lettuce, iceberg (includes crisphead types), raw
+Römersalat	gemuese	Lettuce, cos or romaine, raw
+Weißkohl	gemuese	Cabbage, raw
+Rotkohl	gemuese	Cabbage, red, raw
+Grünkohl	gemuese	Kale, raw
+Champignons	gemuese	Mushrooms, white, raw
+Grüne Bohnen	gemuese	Beans, snap, green, raw
+Mais, Dose	gemuese	Corn, sweet, yellow, canned, whole kernel, drained solids
+Rote Bete	gemuese	Beets, raw
+Radieschen	gemuese	Radishes, raw
+Sellerie	gemuese	Celery, raw
+Lauch	gemuese	Leeks, (bulb and lower leaf-portion), raw
+Kürbis	gemuese	Pumpkin, raw
+Avocado	obst	Avocados, raw, all commercial varieties	Stück=150
+Oliven	fett	Olives, ripe, canned (small-extra large)	Stück=4
+Petersilie	gewuerz	Parsley, fresh	EL=4
+Koriander, frisch	gewuerz	Coriander (cilantro) leaves, raw	EL=1
+Minze, frisch	gewuerz	Spearmint, fresh	EL=2
+Basilikum, frisch	gewuerz	Basil, fresh
+Zitrone	obst	Lemons, raw, without peel	Stück=60
+Zitronensaft	gewuerz	Lemon juice, raw	EL=15
+Limette	obst	Limes, raw	Stück=67
+Apfel	obst	Apples, raw, with skin	Stück=180
+Banane	obst	Bananas, raw	Stück=120
+Orange	obst	Oranges, raw, all commercial varieties	Stück=140
+Mandarine	obst	Tangerines, (mandarin oranges), raw	Stück=75
+Birne	obst	Pears, raw	Stück=180
+Weintrauben	obst	Grapes, red or green (European type, such as Thompson seedless), raw
+Erdbeeren	obst	Strawberries, raw
+Heidelbeeren	obst	Blueberries, raw
+Himbeeren	obst	Raspberries, raw
+Beeren, tiefgekühlt	obst	Blueberries, frozen, unsweetened
+Kiwi	obst	Kiwifruit, green, raw	Stück=75
+Mango	obst	Mangos, raw	Stück=200
+Ananas	obst	Pineapple, raw, all varieties
+Granatapfel	obst	Pomegranates, raw	Stück=280
+Wassermelone	obst	Watermelon, raw
+Datteln	obst	Dates, medjool	Stück=24
+Rosinen	obst	Raisins, dark, seedless	EL=10
+Getrocknete Aprikosen	obst	Apricots, dried, sulfured, uncooked	Stück=8
+Feigen, getrocknet	obst	Figs, dried, uncooked	Stück=20
+Mandeln	nuesse	Nuts, almonds	Handvoll=28
+Walnüsse	nuesse	Nuts, walnuts, english	Handvoll=28
+Haselnüsse	nuesse	Nuts, hazelnuts or filberts	Handvoll=28
+Cashewkerne	nuesse	Nuts, cashew nuts, raw	Handvoll=28
+Pistazien	nuesse	Nuts, pistachio nuts, raw	Handvoll=28
+Erdnüsse	nuesse	Peanuts, all types, raw	Handvoll=28
+Erdnussbutter	nuesse	Peanut butter, smooth style, without salt	EL=16
+Tahini, Sesammus	nuesse	Seeds, sesame butter, tahini, from roasted and toasted kernels (most common type)	EL=15
+Sesam	nuesse	Seeds, sesame seeds, whole, dried	EL=9
+Sonnenblumenkerne	nuesse	Seeds, sunflower seed kernels, dried	EL=9
+Kürbiskerne	nuesse	Seeds, pumpkin and squash seed kernels, dried	EL=9
+Leinsamen	nuesse	Seeds, flaxseed	EL=10
+Chiasamen	nuesse	Seeds, chia seeds, dried	EL=12
+Kokosmilch	fett	Nuts, coconut milk, raw (liquid expressed from grated meat and water)	Dose=400
+Rinderhackfleisch	rind	Beef, ground, 80% lean meat / 20% fat, raw
+Rinderhackfleisch, mager	rind	Beef, ground, 90% lean meat / 10% fat, raw
+Rumpsteak	rind	Beef, top sirloin, steak, separable lean and fat, trimmed to 1/8" fat, choice, raw	Stück=200
+Lachs	fisch	Fish, salmon, Atlantic, farmed, raw	Filet=125
+Lachs, geräuchert	fisch	Fish, salmon, chinook, smoked	Scheibe=20
+Kabeljau	fisch	Fish, cod, Atlantic, raw	Filet=150
+Seelachs	fisch	Fish, pollock, Atlantic, raw	Filet=150
+Thunfisch, Dose, im eigenen Saft	fisch	Fish, tuna, light, canned in water, drained solids	Dose=150
+Thunfisch, Dose, in Öl	fisch	Fish, tuna, light, canned in oil, drained solids	Dose=150
+Makrele	fisch	Fish, mackerel, Atlantic, raw	Filet=150
+Hering	fisch	Fish, herring, Atlantic, raw	Filet=100
+Forelle	fisch	Fish, trout, rainbow, farmed, raw	Filet=150
+Sardinen, Dose	fisch	Fish, sardine, Atlantic, canned in oil, drained solids with bone	Dose=90
+Garnelen	fisch	Crustaceans, shrimp, mixed species, raw (may contain additives to retain moisture)
+Ei	ei	Egg, whole, raw, fresh	Stück=60
+Eiweiß	ei	Egg, white, raw, fresh	Stück=33
+Milch, 3,5 %	milch	Milk, whole, 3.25% milkfat, with added vitamin D	Glas=250
+Milch, 1,5 %	milch	Milk, reduced fat, fluid, 2% milkfat, with added vitamin A and vitamin D	Glas=250
+Joghurt, 3,5 %	milch	Yogurt, plain, whole milk	EL=15
+Griechischer Joghurt	milch	Yogurt, Greek, plain, whole milk	EL=15
+Skyr	milch	Yogurt, Greek, plain, nonfat	EL=15
+Magerquark	milch	Cheese, cottage, nonfat, uncreamed, dry, large or small curd	EL=15
+Hüttenkäse	milch	Cheese, cottage, creamed, large or small curd	EL=15
+Feta	milch	Cheese, feta
+Parmesan	milch	Cheese, parmesan, hard	EL=5
+Gouda	milch	Cheese, gouda	Scheibe=25
+Mozzarella	milch	Cheese, mozzarella, whole milk	Kugel=125
+Frischkäse	milch	Cheese, cream	EL=15
+Halloumi	milch	Cheese, provolone
+Paneer	milch	Cheese, ricotta, whole milk
+Butter	fett	Butter, without salt	TL=5
+Ghee	fett	Butter oil, anhydrous	EL=13
+Sahne	fett	Cream, fluid, heavy whipping	EL=15
+Saure Sahne	milch	Cream, sour, cultured	EL=15
+Olivenöl	fett	Oil, olive, salad or cooking	EL=14
+Rapsöl	fett	Oil, canola	EL=14
+Sonnenblumenöl	fett	Oil, sunflower, linoleic, (approx. 65%)	EL=14
+Kokosöl	fett	Oil, coconut	EL=14
+Zucker	suess	Sugars, granulated	TL=4
+Honig	suess	Honey	TL=7
+Ahornsirup	suess	Syrups, maple	EL=20
+Zartbitterschokolade	suess	Chocolate, dark, 70-85% cacao solids	Riegel=10
+Milchschokolade	suess	Candies, milk chocolate	Riegel=10
+Kreuzkümmel	gewuerz	Spices, cumin seed	TL=2
+Kurkuma	gewuerz	Spices, turmeric, ground	TL=3
+Garam Masala (Werte wie Currypulver)	gewuerz	Spices, curry powder	TL=2
+Currypulver	gewuerz	Spices, curry powder	TL=2
+Paprikapulver	gewuerz	Spices, paprika	TL=2
+Chili, Cayenne	gewuerz	Spices, pepper, red or cayenne	TL=2
+Koriander, gemahlen	gewuerz	Spices, coriander seed	TL=2
+Zimt	gewuerz	Spices, cinnamon, ground	TL=3
+Pfeffer, schwarz	gewuerz	Spices, pepper, black	TL=2
+Oregano, getrocknet	gewuerz	Spices, oregano, dried	TL=1
+Salz	gewuerz	Salt, table	TL=6
+Sojasoße	gewuerz	Soy sauce made from soy and wheat (shoyu)	EL=16
+Balsamico	gewuerz	Vinegar, balsamic	EL=16
+Essig	gewuerz	Vinegar, cider	EL=15
+Senf	gewuerz	Mustard, prepared, yellow	TL=5
+Ketchup	gewuerz	Catsup	EL=17
+Mayonnaise	fett	Salad dressing, mayonnaise, regular	EL=14
+Gemüsebrühe	gewuerz	Soup, vegetable broth, ready to serve
+Wasser	getraenk	Water, bottled, generic	Glas=250
+Kaffee	getraenk	Beverages, coffee, brewed, prepared with tap water	Tasse=240
+Tee	getraenk	Beverages, tea, black, brewed, prepared with tap water	Tasse=240
+Orangensaft	getraenk	Orange juice, raw	Glas=200
+Apfelsaft	getraenk	Apple juice, canned or bottled, unsweetened, without added ascorbic acid	Glas=200
+Cola	suessgetraenk	Beverages, carbonated, cola, regular	Glas=330
+Limonade	suessgetraenk	Beverages, carbonated, lemon-lime soda, no caffeine	Glas=330
+Energydrink	suessgetraenk	Beverages, Energy drink, RED BULL	Dose=250
+Bier	getraenk	Alcoholic beverage, beer, regular, all	Glas=330
+Wein, rot	getraenk	Alcoholic beverage, wine, table, red	Glas=200
+Proteinpulver, Molke	milch	Beverages, Whey protein powder isolate	Portion=30
+Salami	wurst	Salami, dry or hard, pork, beef	Scheibe=10
+Kochschinken	wurst	Ham, sliced, regular (approximately 11% fat)	Scheibe=20
+Speck	wurst	Pork, cured, bacon, unprepared	Scheibe=15
+Würstchen	wurst	Frankfurter, beef, unheated	Stück=50
+Chips	hochverarbeitet	Snacks, potato chips, plain, salted	Handvoll=30
+Salzstangen	hochverarbeitet	Snacks, pretzels, hard, plain, salted	Handvoll=30
+Fertigpizza	hochverarbeitet	Pizza, cheese topping, regular crust, frozen, cooked	Stück=350
+Pommes frites	hochverarbeitet	Potatoes, french fried, all types, salt not added in processing, frozen, oven-heated
+Kekse	hochverarbeitet	Cookies, butter, commercially prepared, enriched	Stück=8
+Croissant	hochverarbeitet	Croissants, butter	Stück=60
+Müsli, ungesüßt	vollkorn	Cereals ready-to-eat, granola, homemade	Portion=50
+Eiscreme	hochverarbeitet	Ice creams, vanilla	Kugel=60
+Gummibärchen	hochverarbeitet	Candies, gumdrops, starch jelly pieces	Handvoll=30

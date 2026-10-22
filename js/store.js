@@ -22,6 +22,10 @@ function defaults() {
       installHintDismissed: false,
       restSeconds: 120,
       trainingDraft: null,
+      meals: null,              // eigener Mahlzeitenplan (null = Vorschlag)
+      recipes: [],              // eigene Rezepte
+      customFoods: [],          // online gefundene Zutaten
+      nutrition: { kcal: null },
       lastBackup: null,
     },
     // Jeder Eintrag: { id, type, ts, label, points, data }

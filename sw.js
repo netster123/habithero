@@ -1,5 +1,5 @@
 // Bei jeder Änderung an App-Dateien VERSION erhöhen – dann zeigt die App „Neue Version verfügbar“.
-const VERSION = '0.4.0';
+const VERSION = '0.5.0';
 const CACHE = `habithero-${VERSION}`;
 const ASSETS = [
   './',
@@ -17,6 +17,10 @@ const ASSETS = [
   'js/rauchfrei.js',
   'js/install.js',
   'js/training.js',
+  'js/foods.js',
+  'js/recipes.js',
+  'js/essen.js',
+  'data/foods-de.json',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
@@ -47,6 +51,11 @@ self.addEventListener('fetch', event => {
     caches.match(req, { ignoreSearch: true }).then(hit => {
       if (hit) return hit;
       return fetch(req).then(res => {
+        // Die große USDA-Datei wird erst bei der ersten Online-Suche geladen und dann offline aufbewahrt
+        if (res.ok && new URL(req.url).pathname.endsWith('/data/usda.json')) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(req, copy));
+        }
         if (res.ok && req.mode === 'navigate') {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put('index.html', copy));

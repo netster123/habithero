@@ -38,4 +38,10 @@ Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft a
 - 0.4.0: Training – Liegestütze, Kniebeugen, Klimmzüge mit Stufen-Leitern (`js/training.js`), Sätze mit
   Stepper speichern, Satzpause-Timer (60–180 s), Aufsteigen (+100) wenn alle Sätze das Ziel erreichen,
   Training abschließen (+100, einmal pro Tag), Sätze pro Woche vs. Ziel 10. Stufe = letzter `stufe`-Eintrag.
-- Als Nächstes: Essen (Rezepte, Nährwerte, Tageswert 1–10), dann Schlaf.
+- 0.5.0: Essen – eigener Mahlzeitenplan (`js/essen.js`, erscheint auch als Aufgaben auf „Heute“), 20 eingebaute
+  Rezepte (`js/recipes.js`), eigene Rezepte mit automatischer Berechnung, Vitamine/Mineralstoffe/Spurenelemente
+  als Balken (D-A-CH-Referenz), Tageswert 1–10, Gewicht. Nährwerte: `data/foods-de.json` (195 deutsche Grundzutaten)
+  und `data/usda.json` (alle USDA-SR-Legacy-Lebensmittel) aus `tools/build-foods.py` + `tools/foods-de.tsv`.
+  Fehlende Zutaten: Suchbegriff wird über MyMemory ins Englische übersetzt und in `data/usda.json` gesucht,
+  der Treffer landet in `customFoods`. Kalorienziel steigt von 2.200 alle 2 Wochen um 200 bis 2.700 (rauchfrei: 2.500).
+- Als Nächstes: Schlaf.

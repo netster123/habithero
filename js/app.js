@@ -6,6 +6,12 @@ import { viewHeute, viewSoon, viewEinstellungen, viewVerlauf, tabbar, esc } from
 import { viewRauchfrei, viewSos, sheetLogCig, sheetQuitDate, awardMilestones, quitState, TRIGGERS, SOS_SECONDS } from './rauchfrei.js';
 import { bindCharts } from './chart.js';
 import { initInstall, promptInstall } from './install.js';
+import { loadFoods, searchLocal, searchOnline, saveCustomFood, deleteCustomFood, foodById } from './foods.js';
+import { saveRecipe, deleteRecipe, recipeById } from './recipes.js';
+import {
+  viewPlan, viewRecipes, viewRecipe, viewMealForm, viewRecipeForm, mealDraftFrom, recipeDraftFrom, meals, saveMeals,
+  toggleMeal, logExtraMeal, mealValues, sheetIngredientSearch, ingredientResultsHtml, onlineResultsHtml, saveFoodFormHtml,
+} from './essen.js';
 import { viewTraining, logSet, undoSet, skipRest, setStage, finishTraining, draft, exerciseById, currentStage } from './training.js';
 
 const $view = document.getElementById('view');
@@ -45,10 +51,20 @@ darkQuery.addEventListener('change', () => { applyTheme(); render(); });
 
 // --- Routing & Rendern -----------------------------------------------------
 
+const ROUTES = ['heute', 'rauchfrei', 'sos', 'training', 'essen', 'mahlzeit', 'rezept', 'rezept-bearbeiten', 'schlaf', 'einstellungen', 'verlauf'];
+
 function route() {
-  const id = (location.hash || '#heute').slice(1);
-  return ['heute', 'rauchfrei', 'sos', 'training', 'essen', 'schlaf', 'einstellungen', 'verlauf'].includes(id) ? id : 'heute';
+  const id = (location.hash || '#heute').slice(1).split('/')[0];
+  return ROUTES.includes(id) ? id : 'heute';
 }
+
+function routeParam() { return decodeURIComponent((location.hash.split('/')[1] || '')); }
+
+// Bearbeitungsstände im Bereich Essen (nur im Speicher, bis gespeichert wird)
+let essenTab = 'plan';
+let recFilter = { cuisine: 'alle', main: null };
+let mealDraft = null;
+let recipeDraft = null;
 
 let rendering = false;
 function render() {
@@ -68,24 +84,44 @@ function renderNow() {
     case 'heute': $view.innerHTML = viewHeute(); break;
     case 'rauchfrei': $view.innerHTML = viewRauchfrei(sosRange); break;
     case 'training': $view.innerHTML = viewTraining(); break;
+    case 'essen': $view.innerHTML = essenTab === 'plan' ? viewPlan() : viewRecipes(recFilter); break;
+    case 'mahlzeit': $view.innerHTML = viewMealForm(mealDraft); break;
+    case 'rezept': $view.innerHTML = viewRecipe(routeParam()); break;
+    case 'rezept-bearbeiten': $view.innerHTML = viewRecipeForm(recipeDraft); break;
     case 'sos': $view.innerHTML = viewSos(sos); syncSos(); break;
     case 'einstellungen': $view.innerHTML = viewEinstellungen(); break;
     case 'verlauf': $view.innerHTML = viewVerlauf(verlaufFilter); break;
     default: $view.innerHTML = viewSoon(r);
   }
-  const tab = ['einstellungen', 'verlauf'].includes(r) ? 'heute' : r === 'sos' ? 'rauchfrei' : r;
+  const tab = ['einstellungen', 'verlauf'].includes(r) ? 'heute' : r === 'sos' ? 'rauchfrei'
+    : ['mahlzeit', 'rezept', 'rezept-bearbeiten'].includes(r) ? 'essen' : r;
   $tabbar.innerHTML = tabbar(tab);
   window.scrollTo(0, scroll);
 }
 
+let lastHash = location.hash;
 let lastRoute = route();
+function prepareRoute() {
+  const r = route();
+  if (r === 'mahlzeit' && (!mealDraft || location.hash !== lastHash)) mealDraft = mealDraftFrom(routeParam());
+  if (r === 'rezept-bearbeiten' && (!recipeDraft || location.hash !== lastHash)) {
+    const p = routeParam();
+    recipeDraft = p.startsWith('kopie:') ? recipeDraftFrom('neu', p.slice(6)) : recipeDraftFrom(p);
+  }
+}
 window.addEventListener('hashchange', () => {
   const r = route();
   if (lastRoute === 'sos' && r !== 'sos') sos = null;
+  if (r !== 'mahlzeit') mealDraft = null;
+  if (r !== 'rezept-bearbeiten') recipeDraft = null;
+  prepareRoute();
   render();
-  if (r !== lastRoute) window.scrollTo(0, 0);
+  if (location.hash !== lastHash) window.scrollTo(0, 0);
+  lastHash = location.hash;
   lastRoute = r;
 });
+prepareRoute();
+loadFoods().then(render).catch(() => toast('Nährwerte konnten nicht geladen werden'));
 onChange(render);
 
 // --- Kleine Helfer -----------------------------------------------------------
@@ -186,6 +222,96 @@ function finishSos(outcome) {
   }
   location.hash = '#rauchfrei';
 }
+
+// --- Essen: Speichern und Zutatensuche --------------------------------------------
+
+function saveMealDraft() {
+  const d = mealDraft;
+  if (d.source === 'rezept' && !d.recipeId) { toast('Bitte ein Rezept wählen'); return; }
+  const rec = d.recipeId && recipeById(d.recipeId);
+  const name = d.name.trim() || rec?.name;
+  if (!name) { toast('Bitte einen Namen eingeben'); return; }
+  const meal = {
+    id: d.id || `m${Date.now().toString(36)}`, name, time: d.time || '12:30', days: d.days,
+    recipeId: d.source === 'rezept' ? d.recipeId : null, portions: d.portions || 1,
+    kcal: Number(d.kcal) || 0, protein: Number(d.protein) || 0, groups: d.groups,
+  };
+  if (d.mode === 'heute') {
+    logExtraMeal(meal);
+    toast('Eingetragen');
+  } else {
+    const list = meals();
+    saveMeals(d.id ? list.map(x => (x.id === d.id ? meal : x)) : [...list, meal]);
+    toast('Gespeichert');
+  }
+  mealDraft = null;
+  location.hash = '#essen';
+}
+
+function saveRecipeDraft() {
+  const d = recipeDraft;
+  if (!d.name.trim()) { toast('Bitte einen Namen eingeben'); return; }
+  if (!d.ingredients.length) { toast('Bitte mindestens eine Zutat hinzufügen'); return; }
+  const recipe = {
+    id: d.id || `r${Date.now().toString(36)}`, name: d.name.trim(), cuisine: d.cuisine, main: d.main,
+    portions: Math.max(1, Number(d.portions) || 1), minutes: Math.max(1, Number(d.minutes) || 1),
+    ingredients: d.ingredients.map(x => ({ foodId: x.foodId, food: x.food, grams: Number(x.grams) || 0, note: x.note || '' })),
+    steps: d.steps.split('\n').map(x => x.trim()).filter(Boolean),
+  };
+  saveRecipe(recipe);
+  recipeDraft = null;
+  toast('Rezept gespeichert');
+  location.hash = `#rezept/${recipe.id}`;
+}
+
+function addIngredient(food) {
+  recipeDraft.ingredients.push({ foodId: food.id, food: food.name, grams: food.portions && Object.values(food.portions)[0] || 100, note: '' });
+  render();
+}
+
+function openIngredientSearch() {
+  let online = null;
+  let picked = null;
+  openSheet(sheetIngredientSearch(), e => {
+    const pick = e.target.closest('[data-pick]');
+    if (pick) { addIngredient(foodById(pick.dataset.pick)); toast('Zutat hinzugefügt'); return true; }
+    const q = document.getElementById('ing-query')?.value || '';
+    const box = document.getElementById('ing-results');
+    if (e.target.closest('[data-online]')) {
+      box.innerHTML = '<p class="hint">Suche im Internet …</p>';
+      searchOnline(q).then(res => { online = res; box.innerHTML = onlineResultsHtml(res, q); })
+        .catch(() => { box.innerHTML = '<p class="hint">Die Suche hat nicht geklappt. Bist du online?</p>'; });
+      return;
+    }
+    const op = e.target.closest('[data-online-pick]');
+    if (op) { picked = online.results[Number(op.dataset.onlinePick)]; box.innerHTML = saveFoodFormHtml(picked, q); return; }
+    const g = e.target.closest('[data-nf-group]');
+    if (g) { box.querySelectorAll('[data-nf-group]').forEach(b => b.setAttribute('aria-pressed', String(b === g))); return; }
+    if (e.target.closest('[data-nf-save]')) {
+      const name = document.getElementById('nf-name').value.trim();
+      if (!name) { toast('Bitte einen Namen eingeben'); return; }
+      const group = box.querySelector('[data-nf-group][aria-pressed="true"]')?.dataset.nfGroup || 'sonstiges';
+      const food = saveCustomFood({ name, group, desc: picked.desc, fdcId: picked.fdcId, v: picked.v });
+      addIngredient(food);
+      toast(`„${name}“ gespeichert`);
+      return true;
+    }
+  });
+  setTimeout(() => document.getElementById('ing-query')?.focus(), 50);
+}
+
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.id === 'ing-query') {
+    document.getElementById('ing-results').innerHTML = el.value.trim() ? ingredientResultsHtml(searchLocal(el.value), el.value) : '<p class="hint">Tippe den Namen einer Zutat ein.</p>';
+  } else if (el.dataset.md && mealDraft) {
+    mealDraft[el.dataset.md] = el.value;
+  } else if (el.dataset.rd && recipeDraft) {
+    recipeDraft[el.dataset.rd] = el.value;
+  } else if (el.dataset.rdGrams && recipeDraft) {
+    recipeDraft.ingredients[Number(el.dataset.rdGrams)].grams = Number(el.value) || 0;
+  }
+});
 
 // --- Aktionen -----------------------------------------------------------------
 
@@ -314,6 +440,79 @@ document.addEventListener('click', async e => {
     const to = Number(el.dataset.stage);
     const ok = await confirmDialog({ title: `${ex.name}: Stufe ${to + 1}?`, text: `Ab jetzt trainierst du „${ex.stages[to].name}“. Dafür gibt es keine Punkte – die gibt es fürs Aufsteigen.`, confirm: 'Stufe wählen', cancel: 'Abbrechen', danger: false });
     if (ok) setStage(ex.id, to);
+  } else if (a === 'essen-tab') {
+    essenTab = el.dataset.tab;
+    render();
+  } else if (a === 'toggle-meal') {
+    const m = meals().find(x => x.id === el.dataset.meal);
+    if (!m) return;
+    const done = toggleMeal(m);
+    if (done) toast(`+${mealValues(m).kcal >= 300 ? 30 : 20} Punkte`);
+  } else if (a === 'log-weight') {
+    const kg = parseFloat(String(document.getElementById('weight-input').value).replace(',', '.'));
+    if (!(kg >= 30 && kg <= 250)) { toast('Bitte ein Gewicht in kg eingeben'); return; }
+    addEntry({ type: 'gewicht', label: `Gewicht ${kg.toLocaleString('de-DE')} kg`, data: { kg } });
+    setSetting('body.weightKg', kg);
+    toast('Gewicht eingetragen');
+  } else if (a === 'md-days') {
+    const day = el.dataset.day;
+    if (day === 'all') mealDraft.days = [];
+    else {
+      const n = Number(day);
+      mealDraft.days = mealDraft.days.includes(n) ? mealDraft.days.filter(x => x !== n) : [...mealDraft.days, n];
+    }
+    render();
+  } else if (a === 'md-source') {
+    mealDraft.source = el.dataset.source;
+    render();
+  } else if (a === 'md-portions') {
+    mealDraft.portions = Math.max(0.5, Math.min(6, (mealDraft.portions || 1) + Number(el.dataset.delta)));
+    render();
+  } else if (a === 'md-group') {
+    const k = el.dataset.group;
+    const n = ((mealDraft.groups[k] || 0) + 1) % 4;
+    mealDraft.groups = { ...mealDraft.groups, [k]: n };
+    render();
+  } else if (a === 'md-save') {
+    saveMealDraft();
+  } else if (a === 'md-delete') {
+    const ok = await confirmDialog({ title: 'Mahlzeit entfernen?', text: `„${mealDraft.name}“ wird aus deinem Plan entfernt. Bereits abgehakte Einträge bleiben im Verlauf.`, confirm: 'Entfernen', cancel: 'Behalten' });
+    if (!ok) return;
+    saveMeals(meals().filter(x => x.id !== mealDraft.id));
+    location.hash = '#essen';
+  } else if (a === 'rec-filter') {
+    recFilter.cuisine = el.dataset.cuisine;
+    render();
+  } else if (a === 'rec-main') {
+    recFilter.main = recFilter.main === el.dataset.main ? null : el.dataset.main;
+    render();
+  } else if (a === 'delete-food') {
+    const f = foodById(el.dataset.id);
+    const ok = await confirmDialog({ title: 'Zutat löschen?', text: `„${f?.name}“ wird aus deinen gespeicherten Zutaten entfernt. Rezepte, die sie nutzen, zeigen sie dann als unbekannt.` });
+    if (ok) deleteCustomFood(el.dataset.id);
+  } else if (a === 'recipe-to-plan') {
+    const rec = recipeById(el.dataset.id);
+    mealDraft = { ...mealDraftFrom('neu'), name: rec.name, recipeId: rec.id };
+    lastHash = '#mahlzeit/neu';
+    location.hash = '#mahlzeit/neu';
+  } else if (a === 'recipe-copy') {
+    location.hash = `#rezept-bearbeiten/kopie:${el.dataset.id}`;
+  } else if (a === 'recipe-delete') {
+    const rec = recipeById(el.dataset.id);
+    const ok = await confirmDialog({ title: 'Rezept löschen?', text: `„${rec.name}“ wird gelöscht. Mahlzeiten in deinem Plan, die es nutzen, behalten ihren Namen.` });
+    if (!ok) return;
+    deleteRecipe(rec.id);
+    location.hash = '#essen';
+  } else if (a === 'rd-set') {
+    recipeDraft[el.dataset.key] = el.dataset.value;
+    render();
+  } else if (a === 'rd-remove') {
+    recipeDraft.ingredients.splice(Number(el.dataset.idx), 1);
+    render();
+  } else if (a === 'rd-add-ingredient') {
+    openIngredientSearch();
+  } else if (a === 'rd-save') {
+    saveRecipeDraft();
   } else if (a === 'finish-training') {
     const r = finishTraining();
     toast(r === 'ok' ? 'Training abgeschlossen · +100 Punkte' : r === 'extra' ? 'Zusatztraining gespeichert' : 'Speichere zuerst mindestens einen Satz');
@@ -345,6 +544,9 @@ document.addEventListener('click', async e => {
 
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.dataset.md === 'recipeId' && mealDraft) { mealDraft.recipeId = el.value || null; render(); return; }
+  if ((el.dataset.rdGrams || el.dataset.rd === 'portions') && recipeDraft) { render(); return; }
+  if (el.dataset.md || el.dataset.rd) return;
   if (el.id === 'restore-file' && el.files[0]) { restore(el.files[0]); el.value = ''; return; }
   if (el.dataset.plan) {
     const plans = { ...(getSetting('plans') || {}) };
