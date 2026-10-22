@@ -1,28 +1,38 @@
-// Einfacher Linienchart als SVG: eine Reihe, Fläche darunter, Antippen zeigt den Tageswert.
+// Einfacher Linienchart als SVG: eine Reihe, Fläche darunter, Antippen zeigt den Wert.
+// Optionen: unit (Einheit im Antipp-Text), target (gestrichelte Ziellinie), variant ('sos' | 'schlaf' für die Farbe),
+// decimals (Nachkommastellen im Antipp-Text).
 import { esc } from './util.js';
 
-// Obergrenze gerade, damit die Mittellinie eine ganze Zahl ist
-function niceMax(values) { return Math.max(4, Math.ceil(Math.max(...values, 0) / 2) * 2); }
+const W = 300, H = 150, L = 26, R = 292, T = 10, B = 124;
 
-export function lineChart(id, values, labels, { unit = 'Klicks' } = {}) {
-  const W = 300, H = 150, L = 26, R = 292, T = 10, B = 124;
-  const max = niceMax(values);
+// Obergrenze gerade, damit die Mittellinie eine ganze Zahl ist
+function niceMax(values, target = 0) { return Math.max(4, Math.ceil(Math.max(...values, target, 0) / 2) * 2); }
+
+const xAt = (i, n) => (n === 1 ? (L + R) / 2 : L + i * (R - L) / (n - 1));
+
+export function lineChart(id, values, labels, { unit = 'Klicks', target = null, variant = 'sos', decimals = 0 } = {}) {
+  const max = niceMax(values, target || 0);
   const n = values.length;
-  const x = i => (n === 1 ? (L + R) / 2 : L + i * (R - L) / (n - 1));
   const y = v => B - (v / max) * (B - T);
-  const pts = values.map((v, i) => [x(i), y(v)]);
+  const pts = values.map((v, i) => [xAt(i, n), y(v)]);
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
   const grid = [0, max / 2, max].map(v => `
     <line x1="${L}" x2="${R}" y1="${y(v)}" y2="${y(v)}" class="ch-grid${v ? '' : ' ch-base'}"/>
     <text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" class="ch-axis">${Math.round(v)}</text>`).join('');
+  const goal = target ? `
+    <line x1="${L}" x2="${R}" y1="${y(target)}" y2="${y(target)}" class="ch-target"/>
+    <text x="${R}" y="${y(target) - 4}" text-anchor="end" class="ch-target-label">Ziel</text>` : '';
   const last = pts[n - 1];
+  const dots = n <= 14 ? pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="2.5" class="ch-point"/>`).join('') : '';
   return `
-    <div class="chart" data-chart="${id}" data-values="${values.join(',')}" data-labels="${esc(labels.join('|'))}" data-unit="${esc(unit)}">
+    <div class="chart chart-${variant}" data-chart="${id}" data-values="${values.join(',')}" data-labels="${esc(labels.join('|'))}"
+      data-unit="${esc(unit)}" data-target="${target || 0}" data-decimals="${decimals}">
       <div class="row-between chart-readout"><span class="sub" data-readout-label>Tippe auf die Linie</span><strong data-readout-value></strong></div>
-      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Linienchart, ${n} Tage">
-        ${grid}
-        <path d="${line} L${R} ${B} L${L} ${B} Z" class="ch-area"/>
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Linienchart, ${n} Werte">
+        ${grid}${goal}
+        <path d="${line} L${pts[n - 1][0]} ${B} L${pts[0][0]} ${B} Z" class="ch-area"/>
         <path d="${line}" class="ch-line"/>
+        ${dots}
         <circle cx="${last[0]}" cy="${last[1]}" r="4" class="ch-dot"/>
         <line class="ch-cross" y1="${T}" y2="${B}" x1="0" x2="0" visibility="hidden"/>
         <circle class="ch-hover" r="5" visibility="hidden"/>
@@ -46,16 +56,18 @@ function onPointer(e) {
   const values = chart.dataset.values.split(',').map(Number);
   const labels = chart.dataset.labels.split('|');
   const r = svg.getBoundingClientRect();
-  const px = (e.clientX - r.left) * 300 / r.width;
-  const L = 26, R = 292, T = 10, B = 124, n = values.length;
-  const max = niceMax(values);
+  const px = (e.clientX - r.left) * W / r.width;
+  const n = values.length;
+  const max = niceMax(values, Number(chart.dataset.target) || 0);
   let i = n === 1 ? 0 : Math.round((px - L) / ((R - L) / (n - 1)));
   i = Math.max(0, Math.min(n - 1, i));
-  const cx = n === 1 ? (L + R) / 2 : L + i * (R - L) / (n - 1);
+  const cx = xAt(i, n);
   const cy = B - (values[i] / max) * (B - T);
   const cross = svg.querySelector('.ch-cross'), dot = svg.querySelector('.ch-hover');
   cross.setAttribute('x1', cx); cross.setAttribute('x2', cx); cross.setAttribute('visibility', 'visible');
   dot.setAttribute('cx', cx); dot.setAttribute('cy', cy); dot.setAttribute('visibility', 'visible');
+  const d = Number(chart.dataset.decimals) || 0;
   chart.querySelector('[data-readout-label]').textContent = labels[i];
-  chart.querySelector('[data-readout-value]').textContent = `${values[i]} ${chart.dataset.unit}`;
+  chart.querySelector('[data-readout-value]').textContent =
+    `${values[i].toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d })} ${chart.dataset.unit}`;
 }

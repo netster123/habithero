@@ -47,4 +47,6 @@ Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft a
 - 0.6.0: Schlaf – Nächte eintragen (`js/schlaf.js`) mit Aufwachen, Qualität, Notiz; Ø Schlaf, Ø wach,
   „Im Rhythmus“ (±30 Min.), Wochenbalken der Aufstehzeit, Abendaufgaben. Alle Aufgabenzeiten auf „Heute“
   richten sich nach dem Schlafziel (`taskList()` in `js/progress.js`). Nacht im Rhythmus +30, sonst +10.
+- 0.6.1: Schlaf zeigt „Letzte Nacht“ (tatsächlich geschlafen = im Bett minus wach gelegen, längste Phase am Stück,
+  Aufwachen, Abweichung von Ziel-Dauer und Ziel-Uhrzeiten) und einen Linienchart der geschlafenen Stunden mit Ziellinie.
 - Alle fünf Bereiche sind gebaut. Offene Ideen: Erinnerungen über iOS-Kurzbefehle, Quellen am Original prüfen.

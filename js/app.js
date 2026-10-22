@@ -1,11 +1,11 @@
 import { getSetting, setSetting, onChange, findEntry, addEntry, updateEntry, removeEntry, exportData, importData, markBackup } from './store.js';
 import { tasksForToday, toggleTask, levelInfo, isTaskDone } from './progress.js';
-import { viewSchlaf, viewNightForm, nightDraftFrom, saveNight, durationFor } from './schlaf.js';
+import { viewSchlaf, viewNightForm, nightDraftFrom, saveNight, durationFor, sleepSeries, goalMinutes } from './schlaf.js';
 import { totalPoints } from './store.js';
 import { dayKey } from './time.js';
 import { viewHeute, viewSoon, viewEinstellungen, viewVerlauf, tabbar, esc } from './views.js';
 import { viewRauchfrei, viewSos, sheetLogCig, sheetQuitDate, awardMilestones, quitState, TRIGGERS, SOS_SECONDS } from './rauchfrei.js';
-import { bindCharts } from './chart.js';
+import { bindCharts, lineChart } from './chart.js';
 import { initInstall, promptInstall } from './install.js';
 import { loadFoods, searchLocal, searchOnline, saveCustomFood, deleteCustomFood, foodById } from './foods.js';
 import { saveRecipe, deleteRecipe, recipeById } from './recipes.js';
@@ -67,6 +67,7 @@ let recFilter = { cuisine: 'alle', main: null };
 let mealDraft = null;
 let recipeDraft = null;
 let nightDraft = null;
+let sleepRange = 14;
 
 let rendering = false;
 function render() {
@@ -90,7 +91,7 @@ function renderNow() {
     case 'mahlzeit': $view.innerHTML = viewMealForm(mealDraft); break;
     case 'rezept': $view.innerHTML = viewRecipe(routeParam()); break;
     case 'rezept-bearbeiten': $view.innerHTML = viewRecipeForm(recipeDraft); break;
-    case 'schlaf': $view.innerHTML = viewSchlaf(tasksForToday().filter(t => t.evening), isTaskDone); break;
+    case 'schlaf': $view.innerHTML = viewSchlaf(tasksForToday().filter(t => t.evening), isTaskDone, sleepRange, sleepChart); break;
     case 'nacht': $view.innerHTML = viewNightForm(nightDraft); break;
     case 'sos': $view.innerHTML = viewSos(sos); syncSos(); break;
     case 'einstellungen': $view.innerHTML = viewEinstellungen(); break;
@@ -227,6 +228,12 @@ function finishSos(outcome) {
     }
   }
   location.hash = '#rauchfrei';
+}
+
+function sleepChart(days) {
+  const { values, labels } = sleepSeries(days);
+  if (values.length < 2) return '<p class="hint">Trag mindestens zwei Nächte ein, dann erscheint hier dein Verlauf.</p>';
+  return lineChart('schlaf', values, labels, { unit: 'Std.', target: Math.round(goalMinutes() / 6) / 10, variant: 'schlaf', decimals: 1 });
 }
 
 // --- Essen: Speichern und Zutatensuche --------------------------------------------
@@ -452,6 +459,12 @@ document.addEventListener('click', async e => {
     if (ok) setStage(ex.id, to);
   } else if (a === 'nd-wakeups') {
     nightDraft.wakeups = Math.max(0, Math.min(20, nightDraft.wakeups + Number(el.dataset.delta)));
+    render();
+  } else if (a === 'nd-awake') {
+    nightDraft.awakeMin = Math.max(0, Math.min(600, (Number(nightDraft.awakeMin) || 0) + Number(el.dataset.delta)));
+    render();
+  } else if (a === 'sleep-range') {
+    sleepRange = Number(el.dataset.range);
     render();
   } else if (a === 'nd-quality') {
     nightDraft.quality = el.dataset.quality;
