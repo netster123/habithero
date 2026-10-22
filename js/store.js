@@ -19,6 +19,7 @@ function defaults() {
       plans: {},                // Wenn-Dann-Pläne je Auslöser
       savingsGoal: { name: '', amount: 0 },
       awarded: [],              // bereits vergebene Rauchfrei-Meilensteine
+      installHintDismissed: false,
       lastBackup: null,
     },
     // Jeder Eintrag: { id, type, ts, label, points, data }

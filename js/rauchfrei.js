@@ -322,7 +322,7 @@ export function sheetQuitDate() {
     <h2 id="sh-t">Rauchstopp-Tag</h2>
     <p>Ab diesem Moment zählt HabitHero deine rauchfreie Zeit. Du kannst auch „Jetzt“ wählen.</p>
     <input class="input" type="datetime-local" id="quit-input" value="${local}" style="margin-bottom:12px">
-    <div class="dialog-actions" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="dialog-actions three">
       <button type="button" class="btn" data-close>Abbrechen</button>
       <button type="button" class="btn" data-quit="now">Jetzt</button>
       <button type="button" class="btn btn-primary" data-quit="input">Festlegen</button>

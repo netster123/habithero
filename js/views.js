@@ -3,8 +3,9 @@ import { levelInfo, tasksForToday, taskEntry, pointsOnDay } from './progress.js'
 import { greeting, longDate, dayKey, dayLabel, clock, formatNumber, formatEuro } from './time.js';
 import { icon } from './icons.js';
 import { quitState, shortDuration } from './rauchfrei.js';
+import { installInfo } from './install.js';
 
-export const APP_VERSION = '0.2.0';
+export const APP_VERSION = '0.3.0';
 
 import { esc } from './util.js';
 export { esc };
@@ -19,7 +20,7 @@ export const TABS = [
 
 export function tabbar(current) {
   return TABS.map(t => `
-    <a class="tab" href="#${t.id}" ${t.id === current ? 'aria-current="page"' : ''}>
+    <a class="tab" href="#${t.id}" aria-label="${t.label}" ${t.id === current ? 'aria-current="page"' : ''}>
       ${icon(t.icon)}<span>${t.label}</span>
     </a>`).join('');
 }
@@ -27,6 +28,34 @@ export function tabbar(current) {
 function themeToggle(isDark) {
   return `<button type="button" class="icon-btn" data-action="toggle-theme"
     aria-label="${isDark ? 'Zum hellen Modus wechseln' : 'Zum dunklen Modus wechseln'}">${icon(isDark ? 'sun' : 'moon')}</button>`;
+}
+
+// --- Installations-Hilfe ------------------------------------------------------
+
+function installSteps(info) {
+  if (info.ios) return `<ol>
+      <li>Tippe in Safari auf <strong>Teilen</strong> (Quadrat mit Pfeil; bei neuen iOS-Versionen zuerst auf <strong>•••</strong>).</li>
+      <li>Wähle <strong>Zum Home-Bildschirm</strong> und dann <strong>Hinzufügen</strong>.</li></ol>`;
+  if (info.android) return `<ol>
+      <li>Öffne das Browser-Menü <strong>⋮</strong> (Samsung Internet: <strong>≡</strong>).</li>
+      <li>Wähle <strong>App installieren</strong> oder <strong>Zum Startbildschirm hinzufügen</strong>.</li></ol>`;
+  return `<ol><li>Öffne das Browser-Menü und wähle <strong>Zum Startbildschirm hinzufügen</strong> oder <strong>Installieren</strong>.</li></ol>`;
+}
+
+export function installCard({ force = false } = {}) {
+  const info = installInfo();
+  if (info.standalone || (!force && (!info.touch || getSetting('installHintDismissed')))) return '';
+  return `<section class="card install">
+    ${icon('download')}
+    <div style="flex:1;min-width:0">
+      <h2>HabitHero als App installieren</h2>
+      <p class="hint" style="margin-top:4px">So startet HabitHero wie eine richtige App, im Vollbild und auch ohne Internet.</p>
+      ${info.canPrompt ? '' : installSteps(info)}
+      <div class="install-actions">
+        ${info.canPrompt ? `<button type="button" class="btn btn-small btn-primary" data-action="install">Jetzt installieren</button>` : ''}
+        ${force ? '' : `<button type="button" class="btn btn-small" data-action="dismiss-install">Später</button>`}
+      </div>
+    </div></section>`;
 }
 
 // --- Heute -----------------------------------------------------------------
@@ -68,6 +97,8 @@ export function viewHeute() {
         <a class="icon-btn" href="#einstellungen" aria-label="Einstellungen">${icon('gear')}</a>
       </div>
     </header>
+
+    ${installCard()}
 
     <section class="card">
       <div class="row-between">
@@ -175,6 +206,8 @@ export function viewEinstellungen() {
       <div class="hint">Das entspricht ${formatNumber(s.tobacco.gramsPerPack / s.tobacco.daysPerPack, 1)} g und ${formatEuro(s.tobacco.pricePerPack / s.tobacco.daysPerPack)} pro Tag.</div>
     </section>
 
+    ${installInfo().standalone ? '' : `<h2 class="section-title">Installieren</h2>${installCard({ force: true })}`}
+
     <h2 class="section-title">Deine Daten</h2>
     <div class="list">
       <a class="list-item" href="#verlauf">${icon('history')}<span class="list-main">Verlauf aller Einträge</span>${icon('chevronRight', 'icon icon-sm')}</a>
@@ -182,7 +215,7 @@ export function viewEinstellungen() {
       <button type="button" class="list-item" data-action="restore">${icon('upload')}<span class="list-main">Sicherung wiederherstellen</span></button>
     </div>
     <input type="file" id="restore-file" accept="application/json,.json" hidden>
-    <p class="hint" style="padding:0 2px">Deine Daten liegen nur auf diesem iPhone. Nutze HabitHero immer über das Symbol auf dem Home-Bildschirm, denn Safari speichert getrennt davon.</p>
+    <p class="hint" style="padding:0 2px">Deine Daten liegen nur auf diesem iPhone. Nutze HabitHero immer über das Symbol auf dem Home-Bildschirm, denn der Browser speichert getrennt davon.</p>
     <p class="hint muted" style="padding:0 2px">HabitHero ${APP_VERSION}</p>
   `;
 }

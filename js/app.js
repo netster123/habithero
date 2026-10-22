@@ -5,6 +5,7 @@ import { dayKey } from './time.js';
 import { viewHeute, viewSoon, viewEinstellungen, viewVerlauf, tabbar, esc } from './views.js';
 import { viewRauchfrei, viewSos, sheetLogCig, sheetQuitDate, awardMilestones, quitState, TRIGGERS, SOS_SECONDS } from './rauchfrei.js';
 import { bindCharts } from './chart.js';
+import { initInstall, promptInstall } from './install.js';
 
 const $view = document.getElementById('view');
 const $tabbar = document.getElementById('tabbar');
@@ -34,6 +35,9 @@ function resolveTheme() {
 function applyTheme() {
   const t = resolveTheme();
   if (document.documentElement.dataset.theme !== t) document.documentElement.dataset.theme = t;
+  // Statusleiste unter Android (und in Safari) passend einfärben
+  const meta = document.getElementById('theme-color');
+  if (meta) meta.content = t === 'dark' ? '#1C1C1A' : '#F7F6F2';
 }
 
 darkQuery.addEventListener('change', () => { applyTheme(); render(); });
@@ -284,6 +288,12 @@ document.addEventListener('click', async e => {
     backup();
   } else if (a === 'restore') {
     document.getElementById('restore-file').click();
+  } else if (a === 'install') {
+    const ok = await promptInstall();
+    if (ok) toast('HabitHero wird installiert');
+    render();
+  } else if (a === 'dismiss-install') {
+    setSetting('installHintDismissed', true);
   } else if (a === 'apply-update') {
     applyUpdate();
   }
@@ -354,6 +364,7 @@ navigator.storage?.persist?.().catch(() => {});
 const typing = () => ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName);
 setInterval(() => { if (!document.hidden && $overlay.hidden && !typing() && route() !== 'sos') render(); }, 60_000);
 bindCharts();
+initInstall(render);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 
 render();

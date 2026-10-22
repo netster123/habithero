@@ -1,7 +1,7 @@
 # HabitHero
 
 Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft auf einem iPhone 13 mini
-über GitHub Pages: https://netster123.github.io/habithero/
+über GitHub Pages: https://netster123.github.io/habithero/ – soll auf allen gängigen Handys (iPhone und Android) gut bedienbar sein.
 
 ## Technik
 
@@ -33,4 +33,6 @@ Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft a
   Rauchstopp-Tag, Zähler (Tabak/Geld/Zigaretten), Zeitleiste mit Quellen und Meilenstein-Punkten (`js/rauchfrei.js`),
   Sparziel, SOS Craving-Button (Atmen/Kniebeugen/Ablenkung, 3-Min-Timer) mit Linienchart pro Tag (`js/chart.js`).
   Ausrutscher setzen nur die kurzfristigen Meilensteine zurück; langfristige zählen ab dem Rauchstopp-Tag.
+- 0.3.0: Passt auf alle gängigen Handys (320–430 px Breite, Querformat, große Schrift) und hilft beim
+  Installieren auf iPhone und Android (`js/install.js`). Layout-Test lokal: `.audit.js` (nicht im Repo).
 - Als Nächstes: Training, dann Essen (Rezepte, Nährwerte, Tageswert 1–10), dann Schlaf.
