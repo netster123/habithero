@@ -2,12 +2,12 @@ import { getState, getSetting, entries, totalPoints } from './store.js';
 import { levelInfo, tasksForToday, taskEntry, pointsOnDay } from './progress.js';
 import { greeting, longDate, dayKey, dayLabel, clock, formatNumber, formatEuro } from './time.js';
 import { icon } from './icons.js';
+import { quitState, shortDuration } from './rauchfrei.js';
 
-export const APP_VERSION = '0.1.1';
+export const APP_VERSION = '0.2.0';
 
-export function esc(v) {
-  return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+import { esc } from './util.js';
+export { esc };
 
 export const TABS = [
   { id: 'heute', label: 'Heute', icon: 'home' },
@@ -32,22 +32,12 @@ function themeToggle(isDark) {
 // --- Heute -----------------------------------------------------------------
 
 function smokeCard() {
-  const quit = getSetting('quitDate');
-  if (!quit) {
-    return `<a class="card card-tight" href="#rauchfrei" style="color:inherit;text-decoration:none">
-      <div class="card-label">Rauchfrei</div>
-      <div class="card-value" style="font-size:17px;margin-top:2px">Vorbereitung</div>
-      <div class="sub">Rauchstopp-Tag noch offen</div></a>`;
-  }
-  const t = getSetting('tobacco');
-  const ms = Math.max(0, Date.now() - new Date(quit).getTime());
-  const days = ms / 864e5;
-  const d = Math.floor(days), h = Math.floor((ms % 864e5) / 36e5);
-  const saved = days * t.pricePerPack / t.daysPerPack;
-  return `<a class="card card-tight" href="#rauchfrei" style="color:inherit;text-decoration:none">
-    <div class="card-label">Rauchfrei</div>
-    <div class="card-value">${d} T ${h} Std</div>
-    <div class="sub">${formatEuro(saved)} gespart</div></a>`;
+  const qs = quitState();
+  const link = (label, value, sub) => `<a class="card card-tight" href="#rauchfrei" style="color:inherit;text-decoration:none">
+    <div class="card-label">${label}</div><div class="card-value"${value.length > 10 ? ' style="font-size:18px"' : ''}>${value}</div><div class="sub">${sub}</div></a>`;
+  if (qs.mode === 'vorbereitung') return link('Rauchfrei', 'Vorbereitung', 'Rauchstopp-Tag noch offen');
+  if (qs.mode === 'countdown') return link('Rauchstopp in', shortDuration(qs.quit - Date.now()), 'Vorbereitung läuft');
+  return link('Rauchfrei', shortDuration(qs.streakMs), `${formatEuro(qs.euro)} gespart`);
 }
 
 export function viewHeute() {
@@ -109,7 +99,6 @@ export function viewHeute() {
 // --- Platzhalter für die noch kommenden Bereiche -------------------------
 
 const COMING = {
-  rauchfrei: { icon: 'smokeFree', title: 'Rauchfrei', items: ['Vorbereitungsmodus: Zigaretten und Auslöser erfassen', 'Rauchstopp-Tag festlegen', 'Zähler für Tabak, Geld und Zigaretten', 'Zeitleiste mit Studienquellen', 'SOS Craving-Button mit Verlaufschart'] },
   training: { icon: 'barbell', title: 'Training', items: ['Liegestütze, Kniebeugen und Klimmzüge mit Stufen', 'Sätze abhaken und Pausen-Timer', 'Weg zum ersten Klimmzug'] },
   essen: { icon: 'food', title: 'Essen', items: ['Eigene Mahlzeiten eingeben und abhaken', 'Rezepte mit automatischer Kalorienberechnung', 'Vitamine, Mineralstoffe und Spurenelemente als Balken', 'Tageswert 1 bis 10: Wie gesund hast du gegessen?'] },
   schlaf: { icon: 'moon', title: 'Schlafrhythmus', items: ['Schlafens- und Aufstehzeiten eintragen', 'Nächtliches Aufwachen zählen', 'Regelmäßigkeit pro Woche'] },
@@ -211,7 +200,9 @@ const TYPE_FILTERS = [
 ];
 
 export function viewVerlauf(filter = 'alle') {
-  const list = entries(filter === 'alle' ? undefined : filter);
+  const groupsOf = { rauchen: ['rauchen', 'sos', 'rauchfrei'] };
+  const types = groupsOf[filter] || [filter];
+  const list = filter === 'alle' ? entries() : entries().filter(e => types.includes(e.type));
   const groups = new Map();
   for (const e of list) {
     const k = dayKey(new Date(e.ts));

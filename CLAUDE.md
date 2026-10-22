@@ -29,5 +29,8 @@ Persönliche Web-App (PWA) für Rauchstopp, Training, Essen und Schlaf. Läuft a
 
 - 0.1.0: Grundgerüst – Heute (Level, Punkte, Tagesaufgaben), Hell/Dunkel, Einstellungen,
   Verlauf mit Einzel-Löschen, Sicherung/Wiederherstellung, Offline und Update-Hinweis.
-- Als Nächstes: Rauchfrei (Vorbereitungsmodus, Zähler, Zeitleiste, SOS Craving-Button mit Linienchart),
-  dann Training, Essen (Rezepte, Nährwerte, Tageswert 1–10), Schlaf.
+- 0.2.0: Rauchfrei – Vorbereitungsmodus (Zigaretten mit Situation erfassen, Top-Auslöser, Wenn-Dann-Pläne),
+  Rauchstopp-Tag, Zähler (Tabak/Geld/Zigaretten), Zeitleiste mit Quellen und Meilenstein-Punkten (`js/rauchfrei.js`),
+  Sparziel, SOS Craving-Button (Atmen/Kniebeugen/Ablenkung, 3-Min-Timer) mit Linienchart pro Tag (`js/chart.js`).
+  Ausrutscher setzen nur die kurzfristigen Meilensteine zurück; langfristige zählen ab dem Rauchstopp-Tag.
+- Als Nächstes: Training, dann Essen (Rezepte, Nährwerte, Tageswert 1–10), dann Schlaf.

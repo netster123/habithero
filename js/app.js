@@ -1,8 +1,10 @@
-import { getSetting, setSetting, onChange, findEntry, removeEntry, exportData, importData, markBackup } from './store.js';
+import { getSetting, setSetting, onChange, findEntry, addEntry, updateEntry, removeEntry, exportData, importData, markBackup } from './store.js';
 import { tasksForToday, toggleTask, levelInfo } from './progress.js';
 import { totalPoints } from './store.js';
 import { dayKey } from './time.js';
 import { viewHeute, viewSoon, viewEinstellungen, viewVerlauf, tabbar, esc } from './views.js';
+import { viewRauchfrei, viewSos, sheetLogCig, sheetQuitDate, awardMilestones, quitState, TRIGGERS, SOS_SECONDS } from './rauchfrei.js';
+import { bindCharts } from './chart.js';
 
 const $view = document.getElementById('view');
 const $tabbar = document.getElementById('tabbar');
@@ -10,6 +12,8 @@ const $overlay = document.getElementById('overlay');
 const $toast = document.getElementById('toast');
 
 let verlaufFilter = 'alle';
+let sosRange = 14;
+let sos = null; // laufende SOS-Sitzung: { id, start, mode, squats }
 
 // --- Theme -------------------------------------------------------------------
 
@@ -38,20 +42,32 @@ darkQuery.addEventListener('change', () => { applyTheme(); render(); });
 
 function route() {
   const id = (location.hash || '#heute').slice(1);
-  return ['heute', 'rauchfrei', 'training', 'essen', 'schlaf', 'einstellungen', 'verlauf'].includes(id) ? id : 'heute';
+  return ['heute', 'rauchfrei', 'sos', 'training', 'essen', 'schlaf', 'einstellungen', 'verlauf'].includes(id) ? id : 'heute';
 }
 
+let rendering = false;
 function render() {
+  if (rendering) return;
+  rendering = true;
+  try { renderNow(); } finally { rendering = false; }
+}
+
+function renderNow() {
   applyTheme();
-  const r = route();
+  const fresh = awardMilestones();
+  if (fresh.length) toast(`Meilenstein erreicht: ${fresh[fresh.length - 1].title}`);
+  let r = route();
+  if (r === 'sos' && !sos) { location.replace('#rauchfrei'); r = 'rauchfrei'; }
   const scroll = window.scrollY;
   switch (r) {
     case 'heute': $view.innerHTML = viewHeute(); break;
+    case 'rauchfrei': $view.innerHTML = viewRauchfrei(sosRange); break;
+    case 'sos': $view.innerHTML = viewSos(sos); syncSos(); break;
     case 'einstellungen': $view.innerHTML = viewEinstellungen(); break;
     case 'verlauf': $view.innerHTML = viewVerlauf(verlaufFilter); break;
     default: $view.innerHTML = viewSoon(r);
   }
-  const tab = ['einstellungen', 'verlauf'].includes(r) ? 'heute' : r;
+  const tab = ['einstellungen', 'verlauf'].includes(r) ? 'heute' : r === 'sos' ? 'rauchfrei' : r;
   $tabbar.innerHTML = tabbar(tab);
   window.scrollTo(0, scroll);
 }
@@ -59,6 +75,7 @@ function render() {
 let lastRoute = route();
 window.addEventListener('hashchange', () => {
   const r = route();
+  if (lastRoute === 'sos' && r !== 'sos') sos = null;
   render();
   if (r !== lastRoute) window.scrollTo(0, 0);
   lastRoute = r;
@@ -92,6 +109,59 @@ function confirmDialog({ title, text, confirm = 'Löschen', cancel = 'Behalten',
       else if (e.target === $overlay) done(false);
     };
   });
+}
+
+function openSheet(html, onClick) {
+  $overlay.innerHTML = html;
+  $overlay.hidden = false;
+  const close = () => { $overlay.hidden = true; $overlay.innerHTML = ''; $overlay.onclick = null; };
+  $overlay.onclick = e => {
+    if (e.target === $overlay || e.target.closest('[data-close]')) return close();
+    if (onClick(e) === true) close();
+  };
+}
+
+// --- SOS Craving-Button --------------------------------------------------------
+
+function startSos() {
+  const entry = addEntry({ type: 'sos', label: 'SOS Craving-Button', points: 0, data: { outcome: null } });
+  sos = { id: entry.id, start: Date.now(), mode: 'atmen', squats: 0 };
+  location.hash = '#sos';
+}
+
+function syncSos() {
+  if (!sos) return;
+  const elapsed = (Date.now() - sos.start) / 1000;
+  const remaining = Math.max(0, SOS_SECONDS - Math.floor(elapsed));
+  const timer = document.getElementById('sos-timer');
+  if (timer) timer.textContent = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
+  const sub = document.getElementById('sos-sub');
+  if (sub) sub.textContent = remaining ? 'Restzeit' : 'Die Welle ist vorbei. Geschafft?';
+  const core = document.querySelector('.breath-core');
+  if (core) {
+    core.style.animationDelay = `-${(elapsed % 10).toFixed(2)}s`;
+    document.getElementById('breath-label').textContent = elapsed % 10 < 4 ? 'Einatmen' : 'Ausatmen';
+  }
+}
+setInterval(() => { if (route() === 'sos') syncSos(); }, 250);
+
+function finishSos(outcome) {
+  if (!sos) return;
+  const id = sos.id;
+  sos = null;
+  if (outcome === 'überstanden') {
+    updateEntry(id, { points: 50, label: 'SOS Craving-Button: Verlangen überstanden', data: { outcome } });
+    toast('Verlangen überstanden. +50 Punkte');
+  } else {
+    updateEntry(id, { label: 'SOS Craving-Button: geraucht', data: { outcome } });
+    if (quitState().mode === 'rauchfrei') {
+      addEntry({ type: 'rauchen', label: 'Ausrutscher: eine Zigarette', data: { slip: true } });
+      toast('Ein Ausrutscher ist kein Rückfall. Dein Zähler beginnt neu, deine Punkte bleiben.');
+    } else {
+      addEntry({ type: 'rauchen', label: 'Zigarette erfasst', data: { situation: 'sonstiges' } });
+    }
+  }
+  location.hash = '#rauchfrei';
 }
 
 // --- Aktionen -----------------------------------------------------------------
@@ -150,8 +220,53 @@ document.addEventListener('click', async e => {
     const after = levelInfo(totalPoints()).level;
     if (done) toast(after > before ? `Stark – Level ${after} erreicht!` : `+${task.points} Punkte`);
   } else if (a === 'sos') {
-    location.hash = '#rauchfrei';
-    toast('Der SOS Craving-Button kommt im nächsten Schritt');
+    startSos();
+  } else if (a === 'sos-mode') {
+    sos.mode = el.dataset.mode;
+    render();
+  } else if (a === 'squat') {
+    sos.squats = Math.min(15, sos.squats + 1);
+    render();
+    if (sos.squats === 15) toast('15 Kniebeugen geschafft');
+  } else if (a === 'sos-done') {
+    finishSos('überstanden');
+  } else if (a === 'sos-smoked') {
+    finishSos('geraucht');
+  } else if (a === 'sos-range') {
+    sosRange = Number(el.dataset.range);
+    render();
+  } else if (a === 'log-cig') {
+    openSheet(sheetLogCig(), ev => {
+      const b = ev.target.closest('[data-situation]');
+      if (!b) return;
+      const t = TRIGGERS.find(x => x.id === b.dataset.situation);
+      addEntry({ type: 'rauchen', label: `Zigarette: ${t.label}`, data: { situation: t.id } });
+      toast('Erfasst');
+      return true;
+    });
+  } else if (a === 'quit-date') {
+    openSheet(sheetQuitDate(), ev => {
+      const b = ev.target.closest('[data-quit]');
+      if (!b) return;
+      const kind = b.dataset.quit;
+      if (kind === 'clear') { setSetting('quitDate', null); toast('Rauchstopp-Tag entfernt'); return true; }
+      let date = new Date();
+      if (kind === 'input') {
+        const v = document.getElementById('quit-input').value;
+        if (!v) { toast('Bitte Datum und Uhrzeit wählen'); return; }
+        date = new Date(v);
+      }
+      setSetting('quitDate', date.toISOString());
+      toast(date > new Date() ? 'Rauchstopp-Tag festgelegt' : 'Los geht’s – du bist jetzt rauchfrei!');
+      return true;
+    });
+  } else if (a === 'save-goal') {
+    const name = document.getElementById('goal-name').value.trim();
+    const amount = parseFloat(document.getElementById('goal-amount').value.replace(',', '.'));
+    if (!name || !(amount > 0)) { toast('Bitte Name und Betrag eingeben'); return; }
+    setSetting('savingsGoal', { name, amount });
+  } else if (a === 'clear-goal') {
+    setSetting('savingsGoal', { name: '', amount: 0 });
   } else if (a === 'set') {
     setSetting(el.dataset.path, el.dataset.value);
   } else if (a === 'filter') {
@@ -177,6 +292,14 @@ document.addEventListener('click', async e => {
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'restore-file' && el.files[0]) { restore(el.files[0]); el.value = ''; return; }
+  if (el.dataset.plan) {
+    const plans = { ...(getSetting('plans') || {}) };
+    const text = el.value.trim();
+    if (text) plans[el.dataset.plan] = text; else delete plans[el.dataset.plan];
+    setSetting('plans', plans);
+    toast('Plan gespeichert');
+    return;
+  }
   const path = el.dataset.setting;
   if (!path) return;
   if (el.dataset.kind === 'bool') return setSetting(path, el.checked);
@@ -229,7 +352,8 @@ navigator.storage?.persist?.().catch(() => {});
 
 // Tageswechsel, Uhrzeit-Anzeige und Nacht-Modus aktuell halten
 const typing = () => ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName);
-setInterval(() => { if (!document.hidden && $overlay.hidden && !typing()) render(); }, 60_000);
+setInterval(() => { if (!document.hidden && $overlay.hidden && !typing() && route() !== 'sos') render(); }, 60_000);
+bindCharts();
 document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 
 render();

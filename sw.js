@@ -1,5 +1,5 @@
 // Bei jeder Änderung an App-Dateien VERSION erhöhen – dann zeigt die App „Neue Version verfügbar“.
-const VERSION = '0.1.1';
+const VERSION = '0.2.0';
 const CACHE = `habithero-${VERSION}`;
 const ASSETS = [
   './',
@@ -12,6 +12,9 @@ const ASSETS = [
   'js/progress.js',
   'js/views.js',
   'js/icons.js',
+  'js/util.js',
+  'js/chart.js',
+  'js/rauchfrei.js',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
   'icons/icon-512.png',

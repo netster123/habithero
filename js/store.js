@@ -16,6 +16,9 @@ function defaults() {
       body: { age: 49, heightCm: 180, weightKg: 68 },
       tobacco: { gramsPerPack: 30, pricePerPack: 3.75, daysPerPack: 3, cigsPerDay: 30 },
       quitDate: null,
+      plans: {},                // Wenn-Dann-Pläne je Auslöser
+      savingsGoal: { name: '', amount: 0 },
+      awarded: [],              // bereits vergebene Rauchfrei-Meilensteine
       lastBackup: null,
     },
     // Jeder Eintrag: { id, type, ts, label, points, data }
@@ -99,6 +102,13 @@ export function addEntry({ type, label, points = 0, data = {}, ts = new Date().t
   state.entries.push(entry);
   commit();
   return entry;
+}
+
+export function updateEntry(id, changes) {
+  const e = state.entries.find(x => x.id === id);
+  if (!e) return;
+  Object.assign(e, changes, changes.data ? { data: { ...e.data, ...changes.data } } : {});
+  commit();
 }
 
 export function removeEntry(id) {

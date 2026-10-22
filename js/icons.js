@@ -20,6 +20,7 @@ const paths = {
   alert: '<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
   target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
   tools: '<path d="M14 7l3-3 3 3-3 3"/><path d="M17 4v0"/><path d="M4 20l9-9"/><path d="M14 14l6 6"/><path d="M4 4l6 6"/>',
+  x: '<path d="M18 6L6 18"/><path d="M6 6l12 12"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
 };
 
