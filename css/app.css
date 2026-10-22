@@ -25,6 +25,8 @@
   --level-text: #3C3489;
 
   --warn: #BA7517;
+  --chart-grid: #D3D1C7;
+  --chart-axis: #888780;
   --fish-bg: #E6F1FB;
   --fish-text: #0C447C;
 
@@ -61,6 +63,8 @@
   --level-text: #CECBF6;
 
   --warn: #EF9F27;
+  --chart-grid: #6E6D67;
+  --chart-axis: #B4B2A9;
   --fish-bg: #0C447C;
   --fish-text: #B5D4F4;
   color-scheme: dark;
@@ -265,9 +269,10 @@ textarea.input { min-height: 0; resize: vertical; line-height: 1.4; font-size: 1
 /* Charts */
 .chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
 .chart-readout { min-height: 22px; margin-bottom: 2px; }
-.ch-grid { stroke: var(--border); stroke-width: 0.6; stroke-dasharray: 3 3; }
-.ch-base { stroke: var(--border-strong); stroke-dasharray: none; stroke-width: 1; }
-.ch-axis { fill: var(--text-3); font-size: 11px; }
+.ch-grid { stroke: var(--chart-grid); stroke-width: 0.8; }
+.ch-vgrid { stroke: var(--chart-grid); stroke-width: 0.5; opacity: 0.6; }
+.ch-base { stroke: var(--chart-axis); stroke-width: 1.2; }
+.ch-axis { fill: var(--text-2); font-size: 11px; }
 .ch-area { fill: var(--sos); fill-opacity: 0.14; }
 .ch-line { fill: none; stroke: var(--sos); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .ch-dot { fill: var(--sos); stroke: var(--surface); stroke-width: 2; }
@@ -276,7 +281,7 @@ textarea.input { min-height: 0; resize: vertical; line-height: 1.4; font-size: 1
 .ch-point { fill: var(--sos); }
 .ch-target { stroke: var(--text-2); stroke-width: 1; stroke-dasharray: 5 4; }
 .ch-target-label { fill: var(--text-2); font-size: 11px; font-weight: 600; }
-.chart-schlaf .ch-area { fill: var(--level-text); }
+.chart-schlaf .ch-area { fill: var(--level-text); fill-opacity: 0.12; }
 .chart-schlaf .ch-line { stroke: var(--level-text); }
 .chart-schlaf .ch-dot, .chart-schlaf .ch-point { fill: var(--level-text); }
 .chart-schlaf .ch-hover { fill: var(--level-text); }

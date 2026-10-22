@@ -233,7 +233,7 @@ function finishSos(outcome) {
 function sleepChart(days) {
   const { values, labels } = sleepSeries(days);
   if (values.length < 2) return '<p class="hint">Trag mindestens zwei Nächte ein, dann erscheint hier dein Verlauf.</p>';
-  return lineChart('schlaf', values, labels, { unit: 'Std.', target: Math.round(goalMinutes() / 6) / 10, variant: 'schlaf', decimals: 1 });
+  return lineChart('schlaf', values, labels, { unit: 'Std.', target: Math.round(goalMinutes() / 6) / 10, variant: 'schlaf', decimals: 1, step: 2 });
 }
 
 // --- Essen: Speichern und Zutatensuche --------------------------------------------
